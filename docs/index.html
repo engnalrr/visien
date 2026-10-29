@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visien · AI video enhancement studio</title>
+<meta name="description" content="Visien makes AI-generated video and images look photographed: DLSS 5 neural rendering, SeedVR2 restoration, RIFE motion and true-colour matching in one desktop pipeline for Windows.">
+<meta property="og:title" content="Visien · AI video enhancement studio">
+<meta property="og:description" content="DLSS 5 neural rendering, SeedVR2 restoration, RIFE motion and Color Match in one desktop pipeline.">
+<meta property="og:image" content="assets/screenshot.png">
+<link rel="icon" href="assets/visien-mark.svg" type="image/svg+xml">
+<style>
+@font-face { font-family: "Michroma"; src: url("assets/fonts/michroma-latin-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+2000-206F; }
+@font-face { font-family: "Michroma"; src: url("assets/fonts/michroma-latin-ext-400-normal.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+0100-02BA, U+1E00-1E9F; }
+@font-face { font-family: "Instrument Sans"; src: url("assets/fonts/instrument-sans-latin-wght-normal.woff2") format("woff2"); font-weight: 400 700; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+2000-206F, U+2122, U+2212; }
+@font-face { font-family: "Instrument Sans"; src: url("assets/fonts/instrument-sans-latin-ext-wght-normal.woff2") format("woff2"); font-weight: 400 700; font-display: swap; unicode-range: U+0100-02BA, U+1E00-1E9F; }
+@font-face { font-family: "Martian Mono"; src: url("assets/fonts/martian-mono-latin-wght-normal.woff2") format("woff2"); font-weight: 100 800; font-display: swap; unicode-range: U+0000-00FF, U+0131, U+2000-206F; }
+@font-face { font-family: "Martian Mono"; src: url("assets/fonts/martian-mono-latin-ext-wght-normal.woff2") format("woff2"); font-weight: 100 800; font-display: swap; unicode-range: U+0100-02BA, U+1E00-1E9F; }
+
+:root {
+  --bg: #0d0e0f; --graphite: #111213; --card: #17181a; --raised: #1e1f22; --rule: #2a2c30; --rule-strong: #3a3c41;
+  --text: #ececea; --muted: #a2a3a6; --faint: #6c6e73;
+  --green: #3fe0b5; --blue: #7a8cff; --magenta: #e07af5; --amber: #ffb547;
+  --coat: linear-gradient(100deg, var(--green) 0%, var(--blue) 36%, var(--magenta) 68%, var(--amber) 100%);
+  --ui: "Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "Martian Mono", "Cascadia Mono", Consolas, monospace;
+  --display: "Michroma", "Instrument Sans", sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--ui); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+img { max-width: 100%; height: auto; display: block; }
+html[data-lang="en"] [lang="tr"], html[data-lang="tr"] [lang="en"] { display: none !important; }
+
+.wrap { width: min(1160px, calc(100% - 32px)); margin: 0 auto; }
+.mono { font-family: var(--mono); font-size: 0.78em; letter-spacing: -0.01em; }
+.eyebrow { font-family: var(--display); font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
+.coat-text { background: var(--coat); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* nav */
+.nav { position: sticky; top: 0; z-index: 20; backdrop-filter: blur(14px); background: rgba(13, 14, 15, 0.78); border-bottom: 1px solid var(--rule); }
+.nav .wrap { display: flex; align-items: center; gap: 22px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.brand img { width: 26px; height: 26px; }
+.brand span { font-family: var(--display); letter-spacing: 0.3em; font-size: 14px; }
+.nav .links { display: flex; gap: 20px; margin-left: auto; font-size: 14px; color: var(--muted); }
+.nav .links a { text-decoration: none; }
+.nav .links a:hover { color: var(--text); }
+.lang { display: flex; border: 1px solid var(--rule-strong); border-radius: 999px; overflow: hidden; }
+.lang button { background: none; border: 0; color: var(--muted); font: 600 12px var(--ui); padding: 5px 11px; cursor: pointer; }
+.lang button.on { background: var(--raised); color: var(--text); }
+@media (max-width: 760px) { .nav .links { display: none; } .lang { margin-left: auto; } }
+
+/* hero */
+.hero { position: relative; padding: 88px 0 40px; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: -40% -10% auto; height: 640px; background:
+  radial-gradient(40% 50% at 25% 40%, rgba(63, 224, 181, 0.13), transparent 70%),
+  radial-gradient(35% 45% at 70% 30%, rgba(122, 140, 255, 0.16), transparent 70%),
+  radial-gradient(30% 40% at 85% 60%, rgba(224, 122, 245, 0.10), transparent 70%); pointer-events: none; }
+.hero .wrap { position: relative; }
+h1 { font-size: clamp(38px, 6.2vw, 74px); line-height: 1.02; letter-spacing: -0.03em; margin: 18px 0 18px; font-weight: 600; max-width: 900px; }
+.lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 720px; margin: 0 0 30px; }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.btn { display: inline-flex; align-items: center; gap: 9px; padding: 13px 20px; border-radius: 10px; font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid var(--rule-strong); background: var(--card); }
+.btn:hover { background: var(--raised); }
+.btn-primary { border: 0; color: #0b0c0d; background: var(--coat); box-shadow: 0 10px 40px rgba(122, 140, 255, 0.28); }
+.btn-primary:hover { filter: brightness(1.06); background: var(--coat); }
+.btn svg { width: 18px; height: 18px; }
+.note { color: var(--faint); font-size: 13px; margin-left: 6px; }
+.shot { margin-top: 56px; border-radius: 14px; padding: 1px; background: linear-gradient(135deg, rgba(63, 224, 181, 0.55), rgba(122, 140, 255, 0.35) 40%, rgba(224, 122, 245, 0.3) 70%, rgba(255, 181, 71, 0.45)); box-shadow: 0 40px 120px rgba(0, 0, 0, 0.6), 0 0 80px rgba(122, 140, 255, 0.12); }
+.shot img { border-radius: 13px; width: 100%; }
+
+/* sections */
+section { padding: 84px 0; border-top: 1px solid var(--rule); }
+h2 { font-size: clamp(28px, 3.6vw, 42px); line-height: 1.1; letter-spacing: -0.02em; margin: 12px 0 14px; font-weight: 600; }
+.sub { color: var(--muted); max-width: 720px; margin: 0 0 40px; font-size: 17px; }
+
+.flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; counter-reset: step; }
+@media (max-width: 900px) { .flow { grid-template-columns: repeat(2, 1fr); } }
+.step { position: relative; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 16px 18px; }
+.step::before { counter-increment: step; content: counter(step, decimal-leading-zero); font-family: var(--mono); font-size: 11px; color: var(--faint); }
+.step b { display: block; margin: 6px 0 4px; font-size: 15px; }
+.step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.45; }
+.step.ai { border-color: rgba(122, 140, 255, 0.45); }
+.step.ai b::after { content: "AI"; margin-left: 8px; font: 700 9.5px var(--ui); letter-spacing: 0.08em; padding: 2px 6px; border-radius: 4px; color: #0b0c0d; background: var(--coat); vertical-align: 2px; }
+.legend { margin-top: 14px; color: var(--faint); font-size: 13px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 24px; }
+.card h3 { margin: 14px 0 8px; font-size: 19px; letter-spacing: -0.01em; }
+.card p { margin: 0; color: var(--muted); font-size: 15px; }
+.icon { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: var(--raised); border: 1px solid var(--rule-strong); }
+.icon svg { width: 20px; height: 20px; stroke: var(--text); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.new { display: inline-block; font: 700 10px var(--ui); letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; color: #0b0c0d; background: var(--coat); margin-left: 8px; vertical-align: 3px; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 860px) { .compare { grid-template-columns: 1fr; } }
+.panel { background: var(--card); border: 1px solid var(--rule); border-radius: 14px; padding: 26px; }
+.panel ul { margin: 14px 0 0; padding-left: 18px; color: var(--muted); }
+.panel li { margin: 6px 0; }
+.stack { margin-top: 16px; border-radius: 10px; overflow: hidden; border: 1px solid var(--rule-strong); }
+.stack div { position: relative; height: 92px; background: linear-gradient(180deg, #3a3150, #6c5677 55%, #c48d73); }
+.stack div + div { border-top: 2px solid rgba(255, 255, 255, 0.4); background: linear-gradient(180deg, #2c2846, #7a5c88 55%, #f0a37a); }
+.stack span { position: absolute; left: 10px; top: 10px; font: 700 11px var(--ui); letter-spacing: 0.06em; padding: 4px 8px; border-radius: 4px; background: rgba(0, 0, 0, 0.55); }
+
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th, td { text-align: left; padding: 13px 12px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--display); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--faint); font-weight: 400; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+td { color: var(--muted); }
+td:first-child { color: var(--text); }
+.tag { font: 600 11px var(--ui); padding: 2px 7px; border-radius: 4px; border: 1px solid var(--rule-strong); color: var(--muted); white-space: nowrap; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--rule); border-radius: 14px; background: var(--card); }
+
+.steps { counter-reset: n; display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.steps li { counter-increment: n; display: grid; grid-template-columns: 40px 1fr; gap: 14px; align-items: start; background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; }
+.steps li::before { content: counter(n); width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 14px var(--ui); color: #0b0c0d; background: var(--coat); }
+.steps b { display: block; margin-bottom: 2px; }
+.steps span { color: var(--muted); font-size: 15px; }
+code { font-family: var(--mono); font-size: 0.82em; background: var(--raised); border: 1px solid var(--rule); border-radius: 5px; padding: 1px 6px; }
+.req { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; margin-top: 18px; }
+.req div { background: var(--card); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; }
+.req b { display: block; font-size: 14px; margin-bottom: 4px; }
+.req span { color: var(--muted); font-size: 14px; }
+.fine { color: var(--faint); font-size: 14px; max-width: 880px; }
+.fine p { margin: 0 0 10px; }
+footer { border-top: 1px solid var(--rule); padding: 36px 0 48px; color: var(--faint); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; justify-content: space-between; }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#"><img src="assets/visien-mark.svg" alt=""><span>VISIEN</span></a>
+    <div class="links">
+      <a href="#pipeline"><span lang="en">Pipeline</span><span lang="tr">Akış</span></a>
+      <a href="#features"><span lang="en">Features</span><span lang="tr">Özellikler</span></a>
+      <a href="#presets"><span lang="en">Presets</span><span lang="tr">Presetler</span></a>
+      <a href="#install"><span lang="en">Install</span><span lang="tr">Kurulum</span></a>
+      <a href="https://github.com/engnalrr/visien">GitHub</a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button data-set-lang="en" class="on">EN</button><button data-set-lang="tr">TR</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">Visien 1.3 · for Windows</span><span lang="tr">Visien 1.3 · Windows için</span></div>
+    <h1><span lang="en">Make AI footage look <span class="coat-text">photographed.</span></span><span lang="tr">AI görüntüsü, <span class="coat-text">çekilmiş gibi.</span></span></h1>
+    <p class="lead">
+      <span lang="en">Visien is a desktop enhancement studio for AI-generated video and images. It puts NVIDIA DLSS 5 neural rendering, SeedVR2 restoration, RIFE motion and true-colour matching into one ordered pipeline, and shows you the difference on a few seconds of your clip before you render.</span>
+      <span lang="tr">Visien, yapay zekâ ile üretilmiş video ve görseller için bir masaüstü iyileştirme stüdyosu. NVIDIA DLSS 5 neural rendering'i, SeedVR2 restorasyonunu, RIFE ara kare üretimini ve orijinal renge eşlemeyi tek bir sıralı akışta birleştirir; render almadan önce farkı klibinin birkaç saniyesinde gösterir.</span>
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://github.com/engnalrr/visien/releases/latest">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3v10M5.5 8.5 10 13l4.5-4.5M4 16h12"/></svg>
+        <span lang="en">Download for Windows</span><span lang="tr">Windows için indir</span></a>
+      <a class="btn" href="https://github.com/engnalrr/visien#readme"><span lang="en">Read the guide</span><span lang="tr">Kılavuzu oku</span></a>
+      <span class="note"><span lang="en">Runs on your PC · your files never leave it</span><span lang="tr">Bilgisayarında çalışır · dosyaların dışarı çıkmaz</span></span>
+    </div>
+    <div class="shot"><img src="assets/screenshot.png" alt="Visien: media list, before/after viewer and the Easy pipeline panel" width="1640" height="980"></div>
+  </div>
+</header>
+
+<section id="pipeline">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">One pipeline</span><span lang="tr">Tek akış</span></div>
+    <h2><span lang="en">Every card in the order that works.</span><span lang="tr">Her kart, doğru sırada.</span></h2>
+    <p class="sub"><span lang="en">Visien runs Visual Enhancer's NVIDIA cards and its own AI models in one chain. Pictures travel between steps losslessly; the audio comes from your source.</span><span lang="tr">Visien, Visual Enhancer'ın NVIDIA kartlarını ve kendi AI modellerini tek zincirde çalıştırır. Görüntü adımlar arasında kayıpsız taşınır, ses kaynaktan gelir.</span></p>
+    <div class="flow">
+      <div class="step ai"><b>SeedVR2</b><p lang="en">Restores real texture in soft, smeared, compressed AI video.</p><p lang="tr">Yumuşak, bulanık, sıkıştırılmış AI videosuna gerçek doku.</p></div>
+      <div class="step ai"><b><span lang="en">Faces</span><span lang="tr">Yüzler</span></b><p lang="en">GFPGAN or CodeFormer for faces that drift or melt.</p><p lang="tr">Kayan, eriyen yüzler için GFPGAN ya da CodeFormer.</p></div>
+      <div class="step"><b>Neural Rendering</b><p lang="en">DLSS 5 rebuilds skin, hair and surfaces.</p><p lang="tr">DLSS 5 cildi, saçı ve yüzeyleri yeniden kurar.</p></div>
+      <div class="step"><b>DLSS</b><p lang="en">DLAA clean-up or Ray Reconstruction.</p><p lang="tr">DLAA temizliği ya da Ray Reconstruction.</p></div>
+      <div class="step ai"><b>RIFE</b><p lang="en">24 → 48/60 fps, safe at scene cuts.</p><p lang="tr">24 → 48/60 fps, sahne geçişinde güvenli.</p></div>
+      <div class="step"><b>RTX Super Resolution</b><p lang="en">To 4K by the short side.</p><p lang="tr">Kısa kenardan 4K'ya.</p></div>
+      <div class="step"><b><span lang="en">Grain &amp; grade</span><span lang="tr">Gren ve renk</span></b><p lang="en">Film grain, LUTs, sharpening.</p><p lang="tr">Film greni, LUT, keskinlik.</p></div>
+      <div class="step ai"><b>Color Match</b><p lang="en">Puts the source's colours back.</p><p lang="tr">Kaynağın renklerini geri koyar.</p></div>
+    </div>
+    <p class="legend"><span lang="en">Cards marked AI run in Visien's own runtime (PyTorch, on NVIDIA or AMD). The others run in Visual Enhancer on an NVIDIA RTX GPU.</span><span lang="tr">AI işaretli kartlar Visien'in kendi ortamında çalışır (PyTorch; NVIDIA ya da AMD). Diğerleri NVIDIA RTX kartta Visual Enhancer'da çalışır.</span></p>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">Built for AI footage</span><span lang="tr">AI görüntüsü için</span></div>
+    <h2><span lang="en">Realism without losing control.</span><span lang="tr">Kontrolü kaybetmeden gerçekçilik.</span></h2>
+    <div class="grid">
+      <div class="card"><div class="icon"><svg viewBox="0 0 20 20"><circle cx="10" cy="10" r="6.5"/><path d="M4.5 13.5A7 7 0 0 1 14 4.2"/></svg></div>
+        <h3><span lang="en">Neural realism</span><span lang="tr">Neural gerçekçilik</span></h3>
+        <p lang="en">DLSS 5 Neural Rendering through Merserk's Visual Enhancer turns the waxy, plastic look of generated video into skin, fabric and light that read as photographed.</p>
+        <p lang="tr">Merserk'in Visual Enhancer'ı üzerinden DLSS 5 Neural Rendering, üretilmiş videonun mumsu, plastik görünümünü fotoğraflanmış gibi duran cilde, kumaşa ve ışığa çevirir.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 20 20"><path d="M4 15 15 4M11 4h4v4M5 9l2 2M8 6l1 1"/></svg></div>
+        <h3><span lang="en">Restoration</span><span lang="tr">Restorasyon</span></h3>
+        <p lang="en">SeedVR2 (ByteDance) removes softness and compression and lifts small clips to 1080p. Face restoration repairs faces without flicker.</p>
+        <p lang="tr">SeedVR2 (ByteDance) yumuşaklığı ve sıkıştırmayı giderir, küçük klipleri 1080p'ye çıkarır. Yüz onarımı titreşim olmadan yüzleri düzeltir.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 20 20"><circle cx="7" cy="8" r="3.5"/><circle cx="13" cy="8" r="3.5"/><circle cx="10" cy="13" r="3.5"/></svg></div>
+        <h3><span lang="en">True colour</span><span lang="tr">Gerçek renk</span><span class="new">1.3</span></h3>
+        <p lang="en">Color Match compares the finished picture with your source and brings product, brand and skin colours back. Only broad colour moves; DLSS detail and lighting stay.</p>
+        <p lang="tr">Color Match bitmiş görüntüyü kaynağınla karşılaştırır; ürün, marka ve ten renklerini geri getirir. Yalnızca geniş alanlardaki renk değişir, DLSS'in ayrıntısı ve ışığı kalır.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 20 20"><rect x="2.5" y="5" width="15" height="10" rx="1.5"/><path d="M9 5v10M5 8h1M12.5 8h1"/></svg></div>
+        <h3><span lang="en">Clean shot starts</span><span lang="tr">Temiz plan başları</span><span class="new">1.3</span></h3>
+        <p lang="en">Temporal models need a few frames after every cut. Visien gives each shot a mirrored run-up and cuts it out again, so the first frames of a shot match the rest.</p>
+        <p lang="tr">Zamansal modeller her kesmeden sonra birkaç kareye ihtiyaç duyar. Visien her plana ters çevrilmiş kısa bir ısınma ekleyip sonra çıkarır; planın ilk kareleri geri kalanıyla aynı görünür.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="6.5" rx="1"/><rect x="4" y="11" width="12" height="6.5" rx="1"/></svg></div>
+        <h3><span lang="en">Compare &amp; share</span><span lang="tr">Karşılaştır ve paylaş</span><span class="new">1.3</span></h3>
+        <p lang="en">Split, side-by-side and top/bottom previews, lossless frame checks, and a labelled RAW / NEURAL ENHANCED comparison copy written next to every render.</p>
+        <p lang="tr">Split, yan yana ve altlı üstlü önizleme, kayıpsız kare kontrolü ve her render'ın yanına RAW / NEURAL ENHANCED etiketli karşılaştırma kopyası.</p></div>
+      <div class="card"><div class="icon"><svg viewBox="0 0 20 20"><path d="M4 6h7M14 6h2M4 14h2M9 14h7M4 10h3M10 10h6"/><circle cx="12.5" cy="6" r="1.5"/><circle cx="7.5" cy="14" r="1.5"/><circle cx="8.5" cy="10" r="1.5"/></svg></div>
+        <h3><span lang="en">Easy or Advanced</span><span lang="tr">Easy ya da Advanced</span></h3>
+        <p lang="en">Eight plain controls on top of a ready-made preset, or every card and setting. Hover anything for a one-line explanation. A queue renders whole folders.</p>
+        <p lang="tr">Hazır bir presetin üstünde sekiz sade ayar ya da her kart ve her ayar. Neyin üstüne gelirsen tek satırlık açıklama çıkar. Kuyruk bütün klasörleri işler.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="compare">
+      <div class="panel">
+        <div class="eyebrow"><span lang="en">Color Match</span><span lang="tr">Color Match</span></div>
+        <h2 style="font-size:28px"><span lang="en">The product stays the product.</span><span lang="tr">Ürün, ürün olarak kalır.</span></h2>
+        <ul>
+          <li lang="en"><b>Original Colors</b>: how much of the source's hue and saturation comes back (100 = exact).</li>
+          <li lang="tr"><b>Original Colors</b>: kaynağın ton ve doygunluğunun ne kadarı döner (100 = birebir).</li>
+          <li lang="en"><b>Original Brightness</b>: keep at 0 to keep the lighting DLSS adds.</li>
+          <li lang="tr"><b>Original Brightness</b>: DLSS'in kattığı ışık kalsın diye 0'da bırak.</li>
+          <li lang="en"><b>Precision</b>: Broad for whole areas, Fine for labels and logos.</li>
+          <li lang="tr"><b>Precision</b>: geniş alanlar için Broad, etiket ve logolar için Fine.</li>
+          <li lang="en">Preset <b>Product · True Color</b> sets it up for packaging and brand shots.</li>
+          <li lang="tr"><b>Product · True Color</b> preseti ambalaj ve marka çekimleri için hazır ayarlar.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <div class="eyebrow"><span lang="en">Comparison copy</span><span lang="tr">Karşılaştırma kopyası</span></div>
+        <h2 style="font-size:28px"><span lang="en">Show the difference in one file.</span><span lang="tr">Farkı tek dosyada göster.</span></h2>
+        <p style="color:var(--muted);margin:0"><span lang="en">Export › Comparison writes <code>name_compare.mp4</code>: your source on top, the result below, frame-accurate even after frame generation, with your own labels.</span><span lang="tr">Export › Comparison, <code>ad_compare.mp4</code> yazar: üstte kaynak, altta sonuç; kare üretiminden sonra bile kare kare eşleşir, etiketler senin.</span></p>
+        <div class="stack" aria-hidden="true"><div><span>RAW</span></div><div><span>NEURAL ENHANCED</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="presets">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">Presets</span><span lang="tr">Presetler</span></div>
+    <h2><span lang="en">Start from a look that works.</span><span lang="tr">İşe yarayan bir görünümle başla.</span></h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Preset</th><th><span lang="en">What it does</span><span lang="tr">Ne yapar</span></th><th><span lang="en">Needs</span><span lang="tr">Gerekenler</span></th></tr></thead>
+        <tbody>
+          <tr><td>Visien</td><td><span lang="en">Neural rendering, DLAA clean-up, RTX Super Resolution to 4K. The recommended start.</span><span lang="tr">Neural rendering, DLAA temizliği, RTX Super Resolution ile 4K. Önerilen başlangıç.</span></td><td><span class="tag">RTX</span></td></tr>
+          <tr><td>Visien 60 · Film · Native</td><td><span lang="en">Visien with frame generation to 60 fps, with film grain, or at the source size.</span><span lang="tr">Visien + 60 fps kare üretimi, film greni ya da kaynak boyutu.</span></td><td><span class="tag">RTX</span></td></tr>
+          <tr><td>Realism · Natural Skin</td><td><span lang="en">Gentler rendering and calmer colour for plastic, over-saturated clips.</span><span lang="tr">Plastik, fazla doygun klipler için daha yumuşak işleme ve sakin renk.</span></td><td><span class="tag">RTX</span></td></tr>
+          <tr><td>Realism · SeedVR2 Restore</td><td><span lang="en">The strongest clean-up for soft, compressed AI video.</span><span lang="tr">Yumuşak, sıkıştırılmış AI videosu için en güçlü temizlik.</span></td><td><span class="tag">RTX</span> <span class="tag">AI</span></td></tr>
+          <tr><td>Realism · Faces</td><td><span lang="en">GFPGAN face restoration (commercial use allowed), then the Visien chain.</span><span lang="tr">GFPGAN yüz onarımı (ticari kullanım serbest), sonra Visien zinciri.</span></td><td><span class="tag">RTX</span> <span class="tag">AI</span></td></tr>
+          <tr><td>Product · True Color</td><td><span lang="en">Visien's rendering with the source's exact colours put back.</span><span lang="tr">Visien işlemesi, kaynağın renkleri birebir geri konarak.</span></td><td><span class="tag">RTX</span> <span class="tag">AI</span></td></tr>
+          <tr><td>Realism · Natural Colors</td><td><span lang="en">Visien's look, most colours from the source: skin, food, fashion.</span><span lang="tr">Visien görünümü, renklerin çoğu kaynaktan: ten, yemek, moda.</span></td><td><span class="tag">RTX</span> <span class="tag">AI</span></td></tr>
+          <tr><td>Smooth 60 · RIFE</td><td><span lang="en">RIFE 4.26 interpolation to 60 fps before the upscale.</span><span lang="tr">Büyütmeden önce RIFE 4.26 ile 60 fps.</span></td><td><span class="tag">RTX</span> <span class="tag">AI</span></td></tr>
+          <tr><td>Clean 4K</td><td><span lang="en">Upscale without changing the look.</span><span lang="tr">Görünümü değiştirmeden büyütme.</span></td><td><span class="tag">RTX</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <div class="eyebrow"><span lang="en">Install</span><span lang="tr">Kurulum</span></div>
+    <h2><span lang="en">Three steps.</span><span lang="tr">Üç adım.</span></h2>
+    <ol class="steps">
+      <li><div><b><span lang="en">Download and extract Visien</span><span lang="tr">Visien'i indir ve aç</span></b><span lang="en">From <a href="https://github.com/engnalrr/visien/releases/latest">Releases</a>, extract it to a permanent folder such as <code>C:\Apps\Visien</code>.</span><span lang="tr"><a href="https://github.com/engnalrr/visien/releases/latest">Releases</a> sayfasından indir, <code>C:\Apps\Visien</code> gibi kalıcı bir klasöre aç.</span></div></li>
+      <li><div><b><span lang="en">Run install.bat</span><span lang="tr">install.bat'ı çalıştır</span></b><span lang="en">It sets up Python, ffmpeg and the shortcuts inside the folder; nothing is installed system-wide. AI models install from Settings › AI models.</span><span lang="tr">Python'u, ffmpeg'i ve kısayolları klasörün içine kurar; sisteme hiçbir şey kurulmaz. AI modelleri Ayarlar › AI models'ten kurulur.</span></div></li>
+      <li><div><b><span lang="en">Connect Visual Enhancer</span><span lang="tr">Visual Enhancer'ı bağla</span></b><span lang="en">Download the free <a href="https://github.com/Merserk/dlss5-visual-enhancer/releases/latest">Visual Enhancer</a> by Merserk, extract it to Downloads and press Find automatically.</span><span lang="tr">Merserk'in ücretsiz <a href="https://github.com/Merserk/dlss5-visual-enhancer/releases/latest">Visual Enhancer</a>'ını indir, İndirilenler'e aç ve Find automatically'ye bas.</span></div></li>
+    </ol>
+    <div class="req">
+      <div><b>Windows 11, 64-bit</b><span lang="en">The interface also opens on Windows 10.</span><span lang="tr">Arayüz Windows 10'da da açılır.</span></div>
+      <div><b>NVIDIA GeForce RTX</b><span lang="en">12 GB or more for the AI models; RTX 40/50 for frame generation.</span><span lang="tr">AI modelleri için 12 GB ve üstü; kare üretimi için RTX 40/50.</span></div>
+      <div><b><span lang="en">or AMD Radeon RX 7000/9000</span><span lang="tr">ya da AMD Radeon RX 7000/9000</span></b><span lang="en">AI cards only (SeedVR2, RIFE, faces, Color Match) with AMD's PyTorch.</span><span lang="tr">Yalnızca AI kartları (SeedVR2, RIFE, yüz, Color Match), AMD'nin PyTorch'u ile.</span></div>
+      <div><b><span lang="en">Disk</span><span lang="tr">Disk</span></b><span lang="en">About 10 GB with the AI models.</span><span lang="tr">AI modelleriyle yaklaşık 10 GB.</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap fine">
+    <div class="eyebrow" style="margin-bottom:14px"><span lang="en">Licences and credits</span><span lang="tr">Lisanslar ve emeği geçenler</span></div>
+    <p lang="en">Visual Enhancer is made by Merserk and is not included with Visien (its licence does not allow redistribution). Visien drives it through its official command-line tool.</p>
+    <p lang="tr">Visual Enhancer, Merserk'in eseridir ve Visien'e dahil değildir (lisansı yeniden dağıtıma izin vermez). Visien onu resmî komut satırı aracıyla çalıştırır.</p>
+    <p lang="en">Models: SeedVR2 by ByteDance Seed (Apache 2.0), Practical-RIFE by hzwer (MIT), GFPGAN by TencentARC (Apache 2.0), YuNet (MIT). CodeFormer (NTU S-Lab License 1.0) is for non-commercial use only and is installed only after you accept its licence.</p>
+    <p lang="tr">Modeller: ByteDance Seed'in SeedVR2'si (Apache 2.0), hzwer'in Practical-RIFE'ı (MIT), TencentARC'ın GFPGAN'ı (Apache 2.0), YuNet (MIT). CodeFormer (NTU S-Lab License 1.0) yalnızca ticari olmayan kullanım içindir ve ancak lisansını onaylarsan kurulur.</p>
+    <p lang="en">NVIDIA, GeForce RTX and DLSS are trademarks of NVIDIA Corporation; AMD and Radeon are trademarks of Advanced Micro Devices. Visien is not affiliated with or endorsed by NVIDIA, AMD or Merserk.</p>
+    <p lang="tr">NVIDIA, GeForce RTX ve DLSS, NVIDIA Corporation'ın; AMD ve Radeon, Advanced Micro Devices'ın ticari markalarıdır. Visien'in NVIDIA, AMD ya da Merserk ile bağlantısı veya onayı yoktur.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><img src="assets/visien-mark.svg" alt="" width="22" height="22"><span style="font-size:12px">VISIEN</span></div>
+    <div><span lang="en">Version 1.3 · Windows 10/11</span><span lang="tr">Sürüm 1.3 · Windows 10/11</span></div>
+    <a href="https://github.com/engnalrr/visien">github.com/engnalrr/visien</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var saved = null;
+    try { saved = localStorage.getItem('visien-lang'); } catch (e) { /* private mode */ }
+    var lang = saved || ((navigator.language || '').toLowerCase().indexOf('tr') === 0 ? 'tr' : 'en');
+    function set(next) {
+      lang = next;
+      root.setAttribute('data-lang', next);
+      root.setAttribute('lang', next);
+      document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-set-lang') === next); });
+      try { localStorage.setItem('visien-lang', next); } catch (e) { /* ignore */ }
+    }
+    document.querySelectorAll('[data-set-lang]').forEach(function (b) { b.addEventListener('click', function () { set(b.getAttribute('data-set-lang')); }); });
+    set(lang);
+  })();
+</script>
+</body>
+</html>

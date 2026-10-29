@@ -1,0 +1,4 @@
+# Visien runtime packages (installed by install.bat into .venv)
+fastapi==0.162.0
+uvicorn==0.54.0
+pywebview==6.2.1

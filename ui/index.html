@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visien</title>
+  <link rel="icon" href="/assets/visien-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <defs>
+    <linearGradient id="coat-g" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#3FE0B5"/><stop offset="0.38" stop-color="#7A8CFF"/>
+      <stop offset="0.7" stop-color="#E07AF5"/><stop offset="1" stop-color="#FFB547"/>
+    </linearGradient>
+  </defs>
+  <symbol id="i-plus" viewBox="0 0 20 20"><path d="M10 4v12M4 10h12"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 20 20"><path d="M2.5 5.5a1 1 0 0 1 1-1h4l1.6 1.8h7.4a1 1 0 0 1 1 1v8.2a1 1 0 0 1-1 1h-13a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 20 20"><path d="M6 4.5v11l9-5.5z" class="fill"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 20 20"><path d="M6.5 4.5v11M13.5 4.5v11"/></symbol>
+  <symbol id="i-prev" viewBox="0 0 20 20"><path d="M13 5l-5 5 5 5M6 5v10"/></symbol>
+  <symbol id="i-next" viewBox="0 0 20 20"><path d="M7 5l5 5-5 5M14 5v10"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 20 20"><path d="M5.5 8l4.5 4.5L14.5 8"/></symbol>
+  <symbol id="i-up" viewBox="0 0 20 20"><path d="M10 15.5V5M5.5 9.5L10 5l4.5 4.5"/></symbol>
+  <symbol id="i-down" viewBox="0 0 20 20"><path d="M10 4.5V15M5.5 10.5L10 15l4.5-4.5"/></symbol>
+  <symbol id="i-reset" viewBox="0 0 20 20"><path d="M4.5 9.5a5.5 5.5 0 1 1 1.6 4.1M4.5 4.8v4.7h4.7"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 20 20"><circle cx="10" cy="10" r="2.6"/><path d="M10 2.5v2.2M10 15.3v2.2M17.5 10h-2.2M4.7 10H2.5M15.3 4.7l-1.6 1.6M6.3 13.7l-1.6 1.6M15.3 15.3l-1.6-1.6M6.3 6.3L4.7 4.7"/></symbol>
+  <symbol id="i-x" viewBox="0 0 20 20"><path d="M5.5 5.5l9 9M14.5 5.5l-9 9"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 20 20"><path d="M15.5 10a5.5 5.5 0 1 1-1.6-3.9M15.5 4.5v3.9h-3.9"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 20 20"><rect x="5.5" y="5.5" width="9" height="9" rx="1.2" class="fill"/></symbol>
+  <symbol id="i-check" viewBox="0 0 20 20"><path d="M4.5 10.5l3.5 3.5 7.5-8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 20 20"><path d="M10 3.5l7 12.5H3zM10 8.5v3.5M10 14.2v.3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 20 20"><path d="M4.5 6h11M8 6V4.5h4V6M6 6l.7 10h6.6L14 6"/></symbol>
+  <symbol id="i-film" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="1.5"/><path d="M6.5 4v12M13.5 4v12M3 8h3.5M3 12h3.5M13.5 8H17M13.5 12H17"/></symbol>
+  <symbol id="i-image" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="1.5"/><path d="M3.5 14l4-4 3 3 2-2 4 3.5"/><circle cx="13" cy="7.8" r="1.2"/></symbol>
+  <symbol id="i-reveal" viewBox="0 0 20 20"><path d="M11 4h5v5M16 4l-7 7M14 11.5V16H4V6h4.5"/></symbol>
+  <symbol id="i-log" viewBox="0 0 20 20"><path d="M5 5.5h10M5 9h10M5 12.5h6M5 16h8"/></symbol>
+  <symbol id="i-retry" viewBox="0 0 20 20"><path d="M4.5 10a5.5 5.5 0 0 1 9.4-3.9M15.5 10a5.5 5.5 0 0 1-9.4 3.9M14 3v3.2h-3.2M6 17v-3.2h3.2"/></symbol>
+  <symbol id="i-split" viewBox="0 0 20 20"><rect x="3" y="4" width="14" height="12" rx="1.5"/><path d="M10 2.5v15"/></symbol>
+  <symbol id="i-sbs" viewBox="0 0 20 20"><rect x="2.5" y="5" width="6.5" height="10" rx="1"/><rect x="11" y="5" width="6.5" height="10" rx="1"/></symbol>
+  <symbol id="i-stack" viewBox="0 0 20 20"><rect x="4" y="2.5" width="12" height="6.5" rx="1"/><rect x="4" y="11" width="12" height="6.5" rx="1"/></symbol>
+  <symbol id="i-pixel" viewBox="0 0 20 20"><path d="M4 4h4v4H4zM12 4h4v4h-4zM8 8h4v4H8zM4 12h4v4H4zM12 12h4v4h-4z"/></symbol>
+  <symbol id="i-preset" viewBox="0 0 20 20"><path d="M4 6h7M14 6h2M4 14h2M9 14h7M4 10h3M10 10h6"/><circle cx="12.5" cy="6" r="1.5"/><circle cx="7.5" cy="14" r="1.5"/><circle cx="8.5" cy="10" r="1.5"/></symbol>
+</svg>
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand">
+      <img src="/assets/visien-mark.svg" alt="" width="26" height="26">
+      <span class="wordmark">Visien</span>
+    </div>
+    <div class="seg seg-kind" id="kindSwitch" role="tablist" aria-label="Pipeline">
+      <button data-kind="video" role="tab"><svg class="i"><use href="#i-film"/></svg>Video</button>
+      <button data-kind="image" role="tab"><svg class="i"><use href="#i-image"/></svg>Image</button>
+    </div>
+    <div class="preset-picker">
+      <button class="preset-button" id="presetButton" aria-haspopup="true">
+        <svg class="i"><use href="#i-preset"/></svg>
+        <span class="preset-label">Preset</span>
+        <span class="preset-name" id="presetName">Custom</span>
+        <span class="mod-dot" id="presetModified" title="Changed since the preset was loaded" hidden></span>
+        <svg class="i chev"><use href="#i-chev"/></svg>
+      </button>
+      <div class="menu preset-menu" id="presetMenu" hidden></div>
+    </div>
+    <div class="topbar-space"></div>
+    <button class="engine-pill" id="enginePill" title="Visual Enhancer engine">
+      <span class="led" id="engineLed"></span><span id="engineText">Checking engine…</span>
+    </button>
+    <button class="icon-btn" id="settingsButton" title="Settings"><svg class="i"><use href="#i-gear"/></svg></button>
+  </header>
+
+  <aside class="media-panel">
+    <div class="panel-head">
+      <h2>Media <span class="count" id="mediaCount"></span></h2>
+      <div class="head-actions">
+        <button class="btn btn-quiet" id="addMedia" title="Add videos or images"><svg class="i"><use href="#i-plus"/></svg>Add</button>
+        <button class="icon-btn" id="addFolder" title="Add a folder"><svg class="i"><use href="#i-folder"/></svg></button>
+      </div>
+    </div>
+    <div class="media-tools" id="mediaTools" hidden>
+      <label class="check"><input type="checkbox" id="selectAll"><span></span>Render all</label>
+      <button class="link-btn" id="removeMedia">Remove selected</button>
+    </div>
+    <ul class="media-list" id="mediaList" aria-label="Media"></ul>
+    <div class="media-empty" id="mediaEmpty">
+      <p>Add the clips and stills you want to enhance. Files stay where they are.</p>
+      <button class="btn" id="addMediaEmpty"><svg class="i"><use href="#i-plus"/></svg>Add media</button>
+    </div>
+  </aside>
+
+  <main class="center">
+    <div class="viewer-bar">
+      <div class="seg seg-small" id="viewModes" aria-label="Compare mode">
+        <button data-mode="split" title="Split (1)"><svg class="i"><use href="#i-split"/></svg>Split</button>
+        <button data-mode="side" title="Side by side (2)"><svg class="i"><use href="#i-sbs"/></svg>Side by side</button>
+        <button data-mode="stack" title="Top / bottom (5)"><svg class="i"><use href="#i-stack"/></svg>Top / bottom</button>
+        <button data-mode="source" title="Source only (3)">Source</button>
+        <button data-mode="output" title="Visien only (4)">Visien</button>
+      </div>
+      <div class="viewer-status" id="viewerStatus"></div>
+      <div class="viewer-tools">
+        <button class="tool-btn" id="losslessToggle" title="Lossless frame: show exact PNG frames instead of the playback copies (L)"><svg class="i"><use href="#i-pixel"/></svg>Lossless</button>
+        <span class="zoom-readout" id="zoomReadout">Fit</span>
+        <button class="tool-btn" id="zoomFit" title="Fit (F)">Fit</button>
+        <button class="tool-btn" id="zoom100" title="Actual pixels (Z)">1:1</button>
+      </div>
+    </div>
+
+    <div class="viewer" id="viewer" tabindex="0" aria-label="Viewer">
+      <div class="pane pane-a" id="paneA"><div class="frame" id="frameA"></div></div>
+      <div class="pane pane-b" id="paneB"><div class="frame" id="frameB"></div></div>
+      <div class="divider" id="divider"><span class="divider-handle"></span></div>
+      <div class="corner corner-left" id="labelSource"></div>
+      <div class="corner corner-right" id="labelOutput"></div>
+      <div class="viewer-progress" id="previewProgress" hidden>
+        <div class="vp-text"><span id="previewMessage">Preparing preview</span><span class="mono" id="previewPercent"></span></div>
+        <div class="bar"><i id="previewBar"></i></div>
+        <button class="link-btn" id="previewCancel">Cancel preview</button>
+      </div>
+      <div class="viewer-empty" id="viewerEmpty"></div>
+    </div>
+
+    <div class="transport" id="transport">
+      <div class="transport-buttons">
+        <button class="icon-btn" id="stepBack" title="Previous frame (←)"><svg class="i"><use href="#i-prev"/></svg></button>
+        <button class="icon-btn play" id="playButton" title="Play preview (Space)"><svg class="i"><use href="#i-play"/></svg></button>
+        <button class="icon-btn" id="stepFwd" title="Next frame (→)"><svg class="i"><use href="#i-next"/></svg></button>
+      </div>
+      <div class="timeline" id="timeline">
+        <div class="track"></div>
+        <div class="window" id="tlWindow"></div>
+        <div class="ready" id="tlReady"></div>
+        <div class="head" id="tlHead"></div>
+      </div>
+      <div class="timecode mono" id="timecode">00:00:00.00</div>
+    </div>
+
+    <section class="queue" id="queue">
+      <div class="queue-head" id="queueHead">
+        <button class="queue-title" id="queueToggle" aria-expanded="false" data-tip="Shows or hides the render queue (Q).">
+          <svg class="i chev"><use href="#i-chev"/></svg><span>Queue</span><span class="queue-summary" id="queueSummary">Empty</span>
+        </button>
+        <div class="queue-active" id="queueActive"></div>
+        <div class="queue-actions">
+          <button class="btn btn-quiet btn-sm" id="queueStart">Start</button>
+          <button class="btn btn-quiet btn-sm" id="queueStop" title="Stop the render and pause the queue"><svg class="i"><use href="#i-stop"/></svg>Stop</button>
+          <button class="btn btn-quiet btn-sm" id="queueClear">Clear finished</button>
+          <button class="icon-btn" id="queueLog" title="Log"><svg class="i"><use href="#i-log"/></svg></button>
+        </div>
+      </div>
+      <div class="queue-body" id="queueBody">
+        <ul class="queue-list" id="queueList"></ul>
+        <pre class="queue-logview" id="queueLogView" hidden></pre>
+      </div>
+    </section>
+  </main>
+
+  <aside class="pipeline-panel">
+    <div class="panel-head">
+      <h2>Pipeline <span class="count" id="pipelineKind">Video</span></h2>
+      <div class="head-actions">
+        <button class="link-btn" id="collapseAll">Collapse all</button>
+        <div class="seg seg-small seg-mode" id="modeSwitch" aria-label="Pipeline mode">
+          <button data-mode="easy">Easy</button><button data-mode="advanced">Advanced</button>
+        </div>
+      </div>
+    </div>
+    <div class="cards" id="cards"></div>
+    <div class="checks" id="checks"></div>
+    <footer class="action-bar">
+      <div class="render-strip" id="renderStrip" hidden>
+        <div class="rs-text"><span id="renderText">Rendering</span><span class="mono" id="renderPercent"></span></div>
+        <div class="bar coat-bar"><i id="renderBar"></i></div>
+      </div>
+      <div class="action-row">
+        <button class="btn" id="previewButton" title="Render a preview at the playhead (P)"><svg class="i"><use href="#i-play"/></svg>Preview</button>
+        <select class="select-sm" id="previewLength" title="Preview length">
+          <option value="1">1 s</option><option value="3">3 s</option><option value="5">5 s</option><option value="10">10 s</option>
+        </select>
+        <button class="icon-btn" id="previewAgain" title="Render the preview again (ignore the cached one)"><svg class="i"><use href="#i-refresh"/></svg></button>
+        <button class="icon-btn" id="openOutput" title="Open the output folder"><svg class="i"><use href="#i-folder"/></svg></button>
+        <button class="btn btn-render" id="renderButton" title="Add to the queue and render (Ctrl+Enter)"><span id="renderLabel">Render</span></button>
+      </div>
+    </footer>
+  </aside>
+</div>
+
+<div class="drop-overlay" id="dropOverlay" hidden><div><strong>Drop to add</strong><span>Videos, images or folders</span></div></div>
+<div id="modalRoot"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="/assets/app.js"></script>
+</body>
+</html>

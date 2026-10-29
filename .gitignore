@@ -1,0 +1,17 @@
+# Installed or downloaded by install.bat / Settings > AI models (never in the repository)
+/ai
+/models
+/runtime
+/tools
+/.venv/
+/engine/*
+!/engine/README.txt
+# Per-user state
+/data
+/check.log
+/install.log
+# Build output
+/dist/
+*.zip
+__pycache__/
+*.py[co]
