@@ -54,7 +54,7 @@ own folder.
 
 ## Installation
 
-1. Download **`Visien-1.3.0.zip`** from [Releases](https://github.com/engnalrr/visien/releases/latest) and extract
+1. Download the latest **`Visien-<version>.zip`** from [Releases](https://github.com/engnalrr/visien/releases/latest) and extract
    it to a permanent folder (for example `D:\Apps\Visien`). A path without non-English characters is recommended.
 2. Double-click **`install.bat`**. It downloads Python, the packages and ffmpeg, checks the computer (GPU, AI
    runtime, models) and creates the shortcuts. The result is written to `check.log`.

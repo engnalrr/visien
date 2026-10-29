@@ -55,8 +55,8 @@ Visien sisteme Python kurmaz, sistem ayarlarını değiştirmez; her şey kendi 
 
 | Paket | Boyut | İçinde |
 | --- | --- | --- |
-| **Visien-1.3.0-full.zip** (önerilen) | ~8 GB | Uygulama, kendi Python'u ve paketleri (`runtime\python`), ffmpeg, AI ortamı (`ai\site-packages`: PyTorch CUDA 12.8, OpenCV, spandrel) ve önerilen modeller (`models`: SeedVR2 3B FP8 + VAE, RIFE 4.26, GFPGAN 1.4, YuNet). Kurulumda internet gerekmez. |
-| **Visien-1.3.0.zip** (ince) | ~2 MB | Yalnızca uygulama. `install.bat` Python, paketler ve ffmpeg'i indirir; AI modelleri Ayarlar › AI models › **Install recommended** ile iner. |
+| **Visien-<sürüm>-full.zip** (önerilen) | ~8 GB | Uygulama, kendi Python'u ve paketleri (`runtime\python`), ffmpeg, AI ortamı (`ai\site-packages`: PyTorch CUDA 12.8, OpenCV, spandrel) ve önerilen modeller (`models`: SeedVR2 3B FP8 + VAE, RIFE 4.26, GFPGAN 1.4, YuNet). Kurulumda internet gerekmez. |
+| **Visien-<sürüm>.zip** (ince, Releases) | ~2 MB | Yalnızca uygulama. `install.bat` Python, paketler ve ffmpeg'i indirir; AI modelleri Ayarlar › AI models › **Install recommended** ile iner. |
 
 İkisinde de **Visual Enhancer yoktur** (lisansı yeniden dağıtıma izin vermiyor). **CodeFormer** de pakette yoktur:
 lisansı ticari olmayan kullanımla sınırlı olduğu için onu Ayarlar › AI models'ten, lisansı onaylayarak sen eklersin.
@@ -244,7 +244,7 @@ kaydedilir) ve Visien'de **Preset › Copy settings from Visual Enhancer**'a bas
 
 ## Paylaşma ve lisanslar
 
-Paylaşmak için **Visien-1.3.0-full.zip**'i ver; alan kişi açar, `install.bat`'ı çalıştırır ve Visual Enhancer'ı
+Paylaşmak için tam paketi (**Visien-<sürüm>-full.zip**) ver; alan kişi açar, `install.bat`'ı çalıştırır ve Visual Enhancer'ı
 indirir. Paketi istediğin zaman yeniden üretmek için Visien'de **Ayarlar › Share Visien › Create full package**
 (Visien klasörünün dışında bir klasör seç; ~9 GB, birkaç dakika). Küçük paket için **Create small package**.
 Aynısı komut satırından: `runtime\python\python.exe dev\build_full_package.py full D:\Paylaş\Visien-full.zip`.
