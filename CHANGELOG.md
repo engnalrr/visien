@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.1
+- Fixed: RIFE, SeedVR2, Face Restore and Color Match failed with "OSError: [Errno 22] Invalid argument" in 1.3.0
+  (the lossless hand-off files were tagged with a colour-space name ffmpeg's encoder does not accept).
+- Clean Shot Starts now also works with RGB sources (FFV1, PNG or QuickTime Animation video).
+- When ffmpeg stops while an AI stage writes its result, the error now shows ffmpeg's own message.
+
 ## 1.3.0
 - **Color Match** card (Easy: *Original Colors*): brings the source's hue, saturation and, optionally, brightness back
   after rendering while keeping the detail and lighting DLSS adds. New presets *Product · True Color* and

@@ -1,4 +1,4 @@
 """Visien — AI video enhancement studio powered by DLSS 5 Neural Rendering (via Visual Enhancer)."""
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 APP_NAME = "Visien"

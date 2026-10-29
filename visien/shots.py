@@ -112,7 +112,7 @@ def _probe_colour(path: str) -> list[str]:
                                ("color_transfer", "-color_trc", "color_trc")):
         value = tags.get(key, "")
         if value and value not in ("unknown", "reserved"):
-            args += [option, value]
+            args += [option, "rgb" if option == "-colorspace" and value == "gbr" else value]  # option name for RGB
             params.append(f"{param}={value}")
     return (["-vf", "setparams=" + ":".join(params)] if params else []) + args
 
@@ -137,6 +137,7 @@ def pad(source: str, target: Path, *, width: int, height: int, fps: Fraction, pi
     plan = Plan(starts=list(starts), fps=fps)
     pending = set(starts)
     written = index = 0
+    broken = False
     ahead: list[bytes] = []
 
     def read() -> bytes | None:
@@ -171,15 +172,20 @@ def pad(source: str, target: Path, *, width: int, height: int, fps: Fraction, pi
             encoder.stdin.write(frame)
             written += 1
             index += 1
+    except OSError:
+        broken = True  # the encoder stopped; its own message is reported below
     finally:
         decoder.stdout.close()
         decoder.kill()
         decoder.wait()
-        encoder.stdin.close()
+        try:
+            encoder.stdin.close()
+        except OSError:
+            pass
         err = encoder.stderr.read().decode("utf-8", "replace")
         code = encoder.wait()
-    if code != 0:
-        raise RuntimeError("Clean Shot Starts: could not write the padded copy: " + err[-300:])
+    if code != 0 or broken:
+        raise RuntimeError("Clean Shot Starts: could not write the padded copy: " + (err[-300:] or f"exit code {code}"))
     plan.frames_in, plan.frames_out = index, written
     return plan
 

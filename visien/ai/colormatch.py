@@ -108,7 +108,7 @@ class _DeepWriter:
                                      stdin=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=common.NO_WINDOW)
 
     def write(self, frame: np.ndarray) -> None:
-        self.proc.stdin.write(np.ascontiguousarray(frame, dtype="<u2").tobytes())
+        common.pipe_write(self.proc, np.ascontiguousarray(frame, dtype="<u2").tobytes())
 
     def close(self) -> None:
         self.proc.stdin.close()

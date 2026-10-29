@@ -107,8 +107,26 @@ def reader(ffmpeg: str, path: str, info: dict) -> FrameReader:
 
 
 # Tags of Visual Enhancer's own lossless RGB files; untagged RGB makes Visual Enhancer render darker and cooler.
+# The filter calls the RGB matrix "gbr", the encoder option calls it "rgb".
 RGB_TAGS = "setparams=range=pc:colorspace=gbr:color_primaries=bt709:color_trc=bt709"
-RGB_TAG_ARGS = ["-color_range", "pc", "-colorspace", "gbr", "-color_primaries", "bt709", "-color_trc", "bt709"]
+RGB_TAG_ARGS = ["-color_range", "pc", "-colorspace", "rgb", "-color_primaries", "bt709", "-color_trc", "bt709"]
+
+
+def pipe_write(proc: subprocess.Popen, data: bytes) -> None:
+    """Writes to an ffmpeg pipe; if ffmpeg has stopped, raises its own error message instead of 'Invalid argument'."""
+    try:
+        proc.stdin.write(data)
+    except OSError:
+        try:
+            proc.wait(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+        try:
+            proc.stdin.close()
+        except OSError:
+            pass
+        err = proc.stderr.read().decode("utf-8", "replace").strip() if proc.stderr else ""
+        raise RuntimeError("ffmpeg stopped while writing the result: " + (err[-400:] or "no message")) from None
 
 
 class FrameWriter:
@@ -126,7 +144,7 @@ class FrameWriter:
     def write(self, frame: np.ndarray) -> None:
         if frame.shape[0] != self.height or frame.shape[1] != self.width:
             raise ValueError(f"frame {frame.shape[1]}x{frame.shape[0]} != {self.width}x{self.height}")
-        self.proc.stdin.write(np.ascontiguousarray(frame, dtype=np.uint8).tobytes())
+        pipe_write(self.proc, np.ascontiguousarray(frame, dtype=np.uint8).tobytes())
 
     def close(self) -> None:
         self.proc.stdin.close()
