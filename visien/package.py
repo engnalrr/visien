@@ -24,8 +24,8 @@ from typing import Callable
 from . import __version__
 from .config import ROOT
 
-APP_ITEMS = ["visien", "ui", "presets", "vendor", "dev", "README.md", "install.bat", "install.ps1",
-             "requirements.txt", "Visien.bat", "Visien (browser).bat"]
+APP_ITEMS = ["visien", "ui", "presets", "vendor", "dev", "README.md", "README.tr.md", "CHANGELOG.md", "install.bat",
+             "install.ps1", "requirements.txt", "Visien.bat", "Visien (browser).bat"]
 ENGINE_NOTE = ("Visual Enhancer is not included (its licence does not allow redistribution).\r\n"
                "Download it from https://github.com/Merserk/dlss5-visual-enhancer/releases/latest and extract the\r\n"
                "whole package here or in Downloads, then press Find automatically in Visien's Settings.\r\n")

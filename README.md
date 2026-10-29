@@ -2,291 +2,280 @@
 
 ![Visien](docs/assets/screenshot.png)
 
-**Proje sayfası:** https://engnalrr.github.io/visien/ · **İndir:** [Releases](https://github.com/engnalrr/visien/releases/latest) · [Değişiklikler](CHANGELOG.md)
+**English** · [Türkçe](README.tr.md)
 
-**Yapay zekâ videoları ve görselleri için iyileştirme stüdyosu.** Visien, DLSS 5 Neural Rendering'i
-(Merserk'in **Visual Enhancer** uygulaması üzerinden) ve kendi AI modellerini (SeedVR2, RIFE, yüz onarımı) Topaz
-tarzı bir masaüstü arayüzünde birleştirir. Klibin birkaç saniyesinde ayar dener, kaynakla yan yana karşılaştırır,
-beğendiğin ayarı kuyruğa atıp bütün dosyaları işlersin.
+**Project page:** https://engnalrr.github.io/visien/ · **Download:** [Releases](https://github.com/engnalrr/visien/releases/latest) · [Changelog](CHANGELOG.md)
 
-- Kendi penceresinde açılan masaüstü uygulaması (tarayıcı gerekmez)
-- **Easy mode:** presetin üstünde sekiz kısa ayar (Realism, AI Restore, Output Size, Sharpness, Film Grain,
-  Smooth Motion, Original Colors, Faces). **Advanced:** her kart ve her ayar.
-- **Her ayarın üstüne gelince** ne işe yaradığını anlatan kısa İngilizce açıklama
-- **AI modelleri** (Visien'in kendi AI ortamında, ekran kartında çalışır):
-  - **SeedVR2** (ByteDance): yumuşak, sıkıştırılmış AI videosunda gerçek dokuyu geri getirir, 1080p'ye büyütür
-  - **RIFE 4.26** (Practical-RIFE): ara kare üretir (24 → 48/60 fps), sahne geçişlerini korur
-  - **Yüz onarımı:** GFPGAN 1.4 (ticari kullanım serbest) ya da CodeFormer (yalnızca ticari olmayan kullanım)
-  - **Color Match:** render'dan sonra kaynağın renklerini geri getirir (ürün, marka, ten rengi); DLSS'in eklediği
-    ayrıntıya ve ışığa dokunmaz
-- **Clean Shot Starts:** çok planlı videolarda her planın ilk karelerinin "işlenmemiş" görünmesini engeller
-- **Karşılaştırma kopyası:** çıktının yanına altlı üstlü (ya da yan yana) RAW / NEURAL ENHANCED etiketli video
-- Visual Enhancer'daki bütün kartlar: DLSS Neural Rendering, DLSS Super Resolution, Ray Reconstruction,
+**An enhancement studio for AI-generated video and images.** Visien brings DLSS 5 Neural Rendering (through
+Merserk's **Visual Enhancer**) and its own AI models (SeedVR2, RIFE, face restoration, Color Match) together in a
+Topaz-style desktop app. Try settings on a few seconds of your clip, compare them with the source side by side,
+then queue the settings you like and render every file.
+
+- A desktop app in its own window (no browser needed)
+- **Easy mode:** eight short controls on top of a preset (Realism, AI Restore, Output Size, Sharpness, Film Grain,
+  Smooth Motion, Original Colors, Faces). **Advanced:** every stage and every setting.
+- **Hover help** on every control, explaining what it does
+- **AI models** (run on the GPU in Visien's own AI runtime):
+  - **SeedVR2** (ByteDance): brings real texture back to soft, compressed AI video and upscales it to 1080p
+  - **RIFE 4.26** (Practical-RIFE): frame interpolation (24 → 48/60 fps) that respects scene cuts
+  - **Face restoration:** GFPGAN 1.4 (commercial use allowed) or CodeFormer (non-commercial use only)
+  - **Color Match:** restores the source's colours after rendering (products, brands, skin tones) without touching
+    the detail and light DLSS adds
+- **Clean Shot Starts:** the first frames of each shot in a multi-shot video no longer look unprocessed
+- **Comparison copy:** a top/bottom (or side-by-side) video next to the result, labelled RAW / NEURAL ENHANCED
+- Every Visual Enhancer stage: DLSS Neural Rendering, DLSS Super Resolution, Ray Reconstruction,
   RTX Super Resolution, RTX Video HDR, DLSS / FSR / NVIDIA Frame Generation, ReShade, Coloring, Sharpening,
   Grain, NVIDIA Video Super Resolution, Lightweight Upscale
-- AI kartları ve Visual Enhancer kartları tek bir sırada çalışır; sırayı oklarla değiştirebilirsin
-- Önizleme: oynatma başlığından itibaren 1–10 saniye ya da tek görsel; Split, Side by side, Top / bottom,
-  Source ve Visien görünümleri; yakınlaştırma, kaydırma, kare kare ilerleme, kayıpsız (PNG) kare karşılaştırma
-- Kuyruk: çoklu dosya, sıralama, durdurma, yeniden deneme, kalan süre, kayıt
-- Hazır presetler, özellikle AI çıktılarını daha gerçekçi göstermek için (aşağıda)
+- AI stages and Visual Enhancer stages run in one ordered pipeline; reorder them with the arrows
+- Previews: 1–10 seconds from the playhead, or a single image; Split, Side by side, Top / bottom, Source and Visien
+  views; zoom, pan, frame stepping, lossless (PNG) frame comparison
+- Queue: multiple files, reordering, stop, retry, time remaining, logs
+- Ready-made presets, especially for making AI output look more real (see below)
 
 ---
 
-## Bilgisayarda olması gerekenler
+## Requirements
 
-| Gereksinim | Not |
+| Requirement | Notes |
 | --- | --- |
-| **Windows 11, 64-bit** | Visual Enhancer Windows 11 istiyor. Visien arayüzü Windows 10'da da açılır. |
-| **NVIDIA GeForce RTX ekran kartı** | Neural Rendering için RTX; Frame Generation için RTX 40 veya 50 serisi. AI modelleri için en az 12 GB, önerilen 16 GB ekran kartı belleği (RTX 5070 Ti 16 GB'ta test edildi). SeedVR2 7B için 24 GB önerilir. |
-| *(ya da)* **AMD Radeon RX 7000 / 9000** | Yalnızca **AI kartları** çalışır (SeedVR2, RIFE, yüz onarımı); Visual Enhancer'ın DLSS / RTX kartları NVIDIA ister. Visien AMD kartını tanır ve AI ortamını AMD'nin PyTorch'u (ROCm) ile kurar (RX 9070 XT 16 GB'ta test edildi). |
-| **Güncel NVIDIA sürücüsü** | NVIDIA App veya nvidia.com/drivers üzerinden (CUDA 12.8 destekli sürücü). |
-| **Visual Enhancer v18 ya da yenisi** (19.5 ile denendi) | Ayrıca indirilir (aşağıda). Visien bunu içermez. |
-| **Microsoft Edge WebView2 Runtime** | Windows 11'de hazır gelir. Yoksa kurulum uyarır: https://go.microsoft.com/fwlink/p/?LinkId=2124703 |
-| **Bellek (RAM)** | 16 GB; SeedVR2 Block Swap kullanırken 32 GB ve üstü. |
-| **Boş disk alanı** | Tam paket açıldığında ~10 GB. Önizleme önbelleği varsayılan en fazla 10 GB; çıktılar ve SeedVR2'nin ara dosyaları için ayrıca yer. |
-| **İnternet** | Tam pakette gerekmez. İnce pakette kurulumda Python, paketler ve ffmpeg (~200 MB), AI modelleri için ~9 GB indirilir. |
-| *(DLSS Frame Generation için)* | Windows Ayarları › Sistem › Ekran › Grafik › **Donanım hızlandırmalı GPU zamanlaması** açık olmalı. |
+| **Windows 11, 64-bit** | Visual Enhancer needs Windows 11. The Visien interface also opens on Windows 10. |
+| **NVIDIA GeForce RTX GPU** | RTX for Neural Rendering; RTX 40 or 50 series for Frame Generation. At least 12 GB of video memory for the AI models, 16 GB recommended (tested on an RTX 5070 Ti 16 GB). 24 GB recommended for SeedVR2 7B. |
+| *(or)* **AMD Radeon RX 7000 / 9000** | Only the **AI stages** run (SeedVR2, RIFE, face restoration, Color Match); Visual Enhancer's DLSS / RTX stages need NVIDIA. Visien detects the AMD card and sets up the AI runtime with AMD's PyTorch (ROCm) (tested on an RX 9070 XT 16 GB). |
+| **A current NVIDIA driver** | From the NVIDIA App or nvidia.com/drivers (a driver with CUDA 12.8 support). |
+| **Visual Enhancer v18 or newer** (tested with 19.5) | Downloaded separately (see below). Visien does not include it. |
+| **Microsoft Edge WebView2 Runtime** | Built into Windows 11. If it is missing, setup tells you: https://go.microsoft.com/fwlink/p/?LinkId=2124703 |
+| **Memory (RAM)** | 16 GB; 32 GB or more when SeedVR2 uses Block Swap. |
+| **Free disk space** | ~10 GB once everything is installed. The preview cache is capped at 10 GB by default; leave extra room for outputs and SeedVR2's intermediate files. |
+| **Internet** | Setup downloads Python, the packages and ffmpeg (~200 MB); the recommended AI models are ~9 GB. A full offline package needs none. |
+| *(for DLSS Frame Generation)* | Windows Settings › System › Display › Graphics › **Hardware-accelerated GPU scheduling** must be on. |
 
-Visien sisteme Python kurmaz, sistem ayarlarını değiştirmez; her şey kendi klasörünün içine kurulur.
+Visien does not install Python system-wide and does not change system settings; everything is installed inside its
+own folder.
 
-## Kurulum
+## Installation
 
-| Paket | Boyut | İçinde |
-| --- | --- | --- |
-| **Visien-1.2.0-full.zip** (önerilen) | ~8 GB | Uygulama, kendi Python'u ve paketleri (`runtime\python`), ffmpeg, AI ortamı (`ai\site-packages`: PyTorch CUDA 12.8, OpenCV, spandrel) ve önerilen modeller (`models`: SeedVR2 3B FP8 + VAE, RIFE 4.26, GFPGAN 1.4, YuNet). Kurulumda internet gerekmez. |
-| **Visien-1.2.0.zip** (ince) | ~2 MB | Yalnızca uygulama. `install.bat` Python, paketler ve ffmpeg'i indirir; AI modelleri Ayarlar › AI models › **Install recommended** ile iner. |
+1. Download **`Visien-1.3.0.zip`** from [Releases](https://github.com/engnalrr/visien/releases/latest) and extract
+   it to a permanent folder (for example `D:\Apps\Visien`). A path without non-English characters is recommended.
+2. Double-click **`install.bat`**. It downloads Python, the packages and ffmpeg, checks the computer (GPU, AI
+   runtime, models) and creates the shortcuts. The result is written to `check.log`.
+3. Start **Visien** from the desktop or Start menu shortcut (or `Visien.bat`).
+4. Install the AI models from **Settings › AI models › Install recommended** (SeedVR2 3B FP8 + VAE, RIFE 4.26,
+   GFPGAN 1.4, YuNet; ~9 GB).
 
-İkisinde de **Visual Enhancer yoktur** (lisansı yeniden dağıtıma izin vermiyor). **CodeFormer** de pakette yoktur:
-lisansı ticari olmayan kullanımla sınırlı olduğu için onu Ayarlar › AI models'ten, lisansı onaylayarak sen eklersin.
+**Updating:** extract the new zip over your Visien folder; settings, presets and models are kept.
+**Settings › Updates** checks GitHub for a newer version.
 
-1. Zip'i kalıcı bir yere aç (ör. `D:\Apps\Visien`). Yolda Türkçe karakter olmaması önerilir. Tam paket büyük
-   olduğu için Windows'un kendi "Tümünü ayıkla" komutu birkaç dakika sürebilir; 7-Zip daha hızlıdır.
-2. **`install.bat`** dosyasına çift tıkla. Tam pakette yalnızca bilgisayarı denetler (ekran kartı, AI ortamı,
-   modeller) ve kısayolları oluşturur; ince pakette eksikleri indirir. Sonuç `check.log` dosyasına yazılır.
-3. Masaüstünde ve Başlat menüsünde **Visien** kısayolu oluşur. `Visien.bat` ile de açabilirsin.
+**Full offline package:** on a PC where everything is installed, **Settings › Share Visien › Create full package**
+builds a ~9 GB zip with Python, the packages, ffmpeg, the AI runtime and the recommended models. On another PC,
+`install.bat` then only checks the computer and creates the shortcuts; no internet is needed.
 
-Klasörü sonradan başka bir yere taşırsan `install.bat`'ı yeniden çalıştır (kısayollar yeni yere göre yenilenir).
-Windows "bilinmeyen yayımcı" uyarısı gösterirse bunun nedeni dosyaların imzasız olmasıdır. Kaldırmak için klasörü
-ve iki kısayolu silmen yeterli.
+Neither package includes **Visual Enhancer** (its licence does not allow redistribution). **CodeFormer** is not
+included either: its licence only allows non-commercial use, so you add it yourself from Settings › AI models after
+accepting the licence.
 
-## AMD Radeon ekran kartıyla kullanma
+If you move the folder later, run `install.bat` again (the shortcuts are updated). If Windows shows an "unknown
+publisher" warning, it is because the files are not signed. To uninstall, delete the folder and the two shortcuts.
 
-Visien, Radeon RX 7000 / 9000 serisi ve Ryzen AI Max'ta AI kartlarını AMD'nin Windows için PyTorch'u (ROCm 7.14)
-ile ekran kartında çalıştırır:
+## Using an AMD Radeon GPU
 
-- **Ayarlar › AI models › AI runtime › Install** AMD sürümünü kurar (~1,5 GB). NVIDIA bilgisayardan kopyalanan bir
-  tam paket açıldıysa aynı satırda **Update: switches PyTorch to the AMD Radeon (ROCm) build** görünür; modeller
-  yeniden inmez, yalnızca PyTorch değişir.
-- AMD'de kullanılacak presetler: **Realism · SeedVR2 Restore**, **Realism · Faces**, **Realism · Faces · CodeFormer**,
-  **Smooth 60 · RIFE**. Bu presetlerdeki Visual Enhancer kartları (Neural Rendering, DLSS SR, RTX Super Resolution,
-  Grain) AMD'de otomatik atlanır, AI kartları çalışır; Visien bunu önizlemede uyarı olarak yazar. Yalnızca Visual
-  Enhancer kartı olan presetler (Visien, Natural Skin, Clean 4K …) AMD'de çalışmaz.
-- Çıktı videosu AMD'nin donanım kodlayıcısıyla (AMF) yazılır.
-- RX 9070 XT'de ölçülen: RIFE 12 saniyelik klibi 60 fps'e ~25 saniyede, SeedVR2 720p'de ~4 saniye/kare, GFPGAN
-  ~25 ms/yüz. Her AI modelinin ilk çalıştırması AMD'nin kernel derlemesi yüzünden 15-40 saniye fazla sürer.
+On Radeon RX 7000 / 9000 series and Ryzen AI Max, Visien runs the AI stages on the GPU with AMD's PyTorch for
+Windows (ROCm 7.14):
 
-## Visual Enhancer'ı bağlama
+- **Settings › AI models › AI runtime › Install** installs the AMD build (~1.5 GB). If a full package copied from an
+  NVIDIA PC was extracted, the same row shows **Update: switches PyTorch to the AMD Radeon (ROCm) build**; the
+  models are not downloaded again, only PyTorch changes.
+- Presets to use on AMD: **Realism · SeedVR2 Restore**, **Realism · Faces**, **Realism · Faces · CodeFormer**,
+  **Smooth 60 · RIFE**. The Visual Enhancer stages in these presets (Neural Rendering, DLSS SR, RTX Super Resolution,
+  Grain) are skipped automatically on AMD and the AI stages run; Visien shows this as a warning in the preview.
+  Presets made only of Visual Enhancer stages (Visien, Natural Skin, Clean 4K …) do not run on AMD.
+- Output video is encoded with AMD's hardware encoder (AMF).
+- Measured on an RX 9070 XT: RIFE takes a 12-second clip to 60 fps in ~25 seconds, SeedVR2 ~4 seconds per frame at
+  720p, GFPGAN ~25 ms per face. The first run of each AI model takes 15–40 seconds longer while AMD compiles its
+  kernels.
 
-Visien, Visual Enhancer kartlarını onun resmî komut satırı aracı `VE_CLI.exe` ile çalıştırır.
+## Connecting Visual Enhancer
 
-1. Ayarlar'da **Download page** düğmesine bas ya da
-   https://github.com/Merserk/dlss5-visual-enhancer/releases/latest adresine git.
-2. **Assets** altındaki büyük `.zip` paketini indir ("Source code" arşivleri çalıştırılabilir dosya içermez).
-3. Zip'i **İndirilenler**, Masaüstü veya Belgeler'e ya da Visien'in `engine` klasörüne tamamen aç.
-4. **Find automatically**'ye bas. Üst çubukta `Visual Enhancer 18.0 · RTX …` yazar. Başka bir yere açtıysan
-   **Choose folder…** ile `VE_CLI.exe`'nin olduğu klasörü seç.
+Visien runs the Visual Enhancer stages through its official command-line tool, `VE_CLI.exe`.
 
-Yalnızca AI kartlarını (SeedVR2, RIFE, yüz onarımı) kullanan bir ayar Visual Enhancer olmadan da çalışır; çıktıyı
-Visien kendisi yazar.
+1. Press **Download page** in Settings, or go to https://github.com/Merserk/dlss5-visual-enhancer/releases/latest.
+2. Download the large `.zip` package under **Assets** (the "Source code" archives contain no executables).
+3. Extract the whole zip to **Downloads**, the Desktop or Documents, or to Visien's `engine` folder.
+4. Press **Find automatically**. The top bar shows `Visual Enhancer 18.0 · RTX …`. If you extracted it somewhere
+   else, use **Choose folder…** to pick the folder that contains `VE_CLI.exe`.
 
-## Kullanım
+Settings that only use AI stages (SeedVR2, RIFE, face restoration, Color Match) also work without Visual Enhancer;
+Visien writes the output itself.
 
-1. **Add** ile video ve görselleri ekle ya da pencereye sürükle-bırak. Dosyalar yerinde kalır, kopyalanmaz.
-2. Soldaki listeden bir dosya seç. Video ve görsel ardışık düzenleri ayrı ayarlanır, ikisi de aynı presette saklanır.
-3. Sağ panelin üstünden **Easy** ya da **Advanced**'i seç:
-   - **Easy:** üstte presetin açıklaması, altında sekiz ayar. Bir ayarı değiştirmek alttaki kartları da ayarlar;
-     **Runs** satırı hangi adımların hangi sırayla çalışacağını gösterir. Hiçbir şeyi kaybetmeden Advanced'e
-     geçebilirsin.
-   - **Advanced:** kartları aç/kapat, sırasını oklarla değiştir, ayarlarını gir. Varsayılandan farklı değerler
-     yeşil görünür; ↺ varsayılana döndürür. **AI** rozetli kartlar Visien'in kendi modelleridir.
-4. Her kartın, ayarın ve düğmenin üstüne gelince kısa bir açıklama çıkar.
-5. Zaman çizgisinde bir yere tıkla ve **Preview**'a bas (1/3/5/10 saniye). SeedVR2 açıkken önce 1–2 saniye dene.
-6. Beğendiğinde dosyaları seç ve **Render**'a bas. Kuyruk alttaki panelde; **Stop** o anki işi durdurur.
+## Usage
 
-**Export Settings** kartının altındaki satır çıktının boyutunu ve kare hızını gösterir
-(`854×480 · 24 fps → 3840×2160 · 24 fps`). Ayarlar birbirine uymazsa Render düğmesi kapanır ve sebebi kartların
-altında yazar; SeedVR2 uzun sürecekse yaklaşık süreyi de yazar.
+1. Add videos and images with **Add**, or drag and drop them onto the window. Files stay where they are; they are not
+   copied.
+2. Pick a file in the list on the left. Video and image pipelines are set separately; both are saved in the same
+   preset.
+3. Choose **Easy** or **Advanced** at the top of the right panel:
+   - **Easy:** the preset's description at the top and eight controls below it. Changing a control also sets the
+     stages underneath; the **Runs** line shows which steps run, in which order. You can switch to Advanced without
+     losing anything.
+   - **Advanced:** turn stages on or off, reorder them with the arrows and edit their settings. Values that differ
+     from the default show in green; ↺ resets them. Stages with an **AI** badge are Visien's own models.
+4. Hover over any stage, setting or button for a short explanation.
+5. Click a point on the timeline and press **Preview** (1/3/5/10 seconds). With SeedVR2 on, try 1–2 seconds first.
+6. When you like the result, select the files and press **Render**. The queue is in the bottom panel; **Stop** stops
+   the current job.
 
-## Renkler, çok planlı videolar ve karşılaştırma
+The line under the **Export Settings** card shows the output size and frame rate
+(`854×480 · 24 fps → 3840×2160 · 24 fps`). If settings do not fit together, the Render button is disabled and the
+reason is shown under the stages; when SeedVR2 will take long, the estimated time is shown too.
 
-### Color Match (renkleri koru)
+## Colours, multi-shot videos and comparisons
 
-DLSS 5 Neural Rendering gerçekçiliği biraz da renkle oynayarak sağlar; ürün videosunda bu, ürünün rengini
-kaydırabilir. **Color Match** kartı (Easy mode'da **Original Colors**) en sonda çalışır ve sonucu kaynakla
-karşılaştırır, ama yalnızca **geniş alanlardaki rengi** düzeltir:
+### Color Match (keep the original colours)
 
-- Sonuç ve kaynak birkaç yüz piksellik bulanık bir ızgaraya indirilir, CIELAB'de farkları alınır; fark yeniden
-  büyütülüp sonuca eklenir. İnce doku, keskin kenarlar ve yerel kontrast (DLSS'in kattığı her şey) olduğu gibi kalır.
-- **Original Colors:** ton ve doygunluğun ne kadarı kaynağa döner (100 = birebir; 60–80 DLSS'in rengini biraz bırakır).
-- **Original Brightness:** genel parlaklık ve kontrastın ne kadarı döner. 0'da DLSS'in ışığı kalır.
-- **Precision:** Broad (geniş alanlar), Balanced, Fine (etiket, logo gibi küçük nesneler de).
-- Kare üretimi (RIFE, Frame Generation) ve büyütmeden sonra da çalışır; kaynak zaman olarak hizalanır.
+DLSS 5 Neural Rendering gets part of its realism by shifting colours; in a product video that can change the
+product's colour. The **Color Match** stage (**Original Colors** in Easy mode) runs last and compares the result with
+the source, but only corrects **colour over broad areas**:
 
-### Clean Shot Starts (plan başları)
+- The result and the source are reduced to a blurred grid a few hundred pixels across and compared in CIELAB; the
+  difference is scaled back up and added to the result. Fine texture, sharp edges and local contrast (everything
+  DLSS adds) stay as they are.
+- **Original Colors:** how much of the hue and saturation returns to the source (100 = exact; 60–80 keeps some of
+  DLSS's colour).
+- **Original Brightness:** how much of the overall brightness and contrast returns. At 0, DLSS's lighting stays.
+- **Precision:** Broad (large areas), Balanced, Fine (small objects such as labels and logos too).
+- Works after frame generation (RIFE, Frame Generation) and upscaling as well; the source is aligned in time.
 
-Neural Rendering, DLSS ve SeedVR2 her kareyi önceki karelerden yararlanarak üretir. Klibin başında ve her
-kesmeden sonra elinde önceki kare olmadığı için planın ilk 1–3 karesi farklı renkte, "render edilmemiş" gibi
-çıkar. **Export › Clean Shot Starts** (varsayılan açık) kesmeleri bulur, her planın önüne o planın sonraki
-karelerinden ters çevrilmiş kısa bir ısınma ekler, bütün kartları bu uzatılmış video üzerinde çalıştırır ve
-ısınma karelerini son dosyayı yazarken çıkarır. Süre, kare sayısı ve ses kaynakla aynı kalır. HDR çıktıda atlanır.
+### Clean Shot Starts
 
-### Karşılaştırma kopyası
+Neural Rendering, DLSS and SeedVR2 build each frame from the frames before it. At the start of the clip and after
+every cut there is no previous frame, so the first 1–3 frames of a shot come out with different colours, as if they
+had not been rendered. **Export › Clean Shot Starts** (on by default) finds the cuts, puts a short mirrored warm-up
+made of the shot's next frames in front of every shot, runs every stage on that longer video and removes the warm-up
+frames when it writes the final file. Duration, frame count and audio match the source. Skipped for HDR output.
 
-**Export › Comparison** *Top / bottom* ya da *Side by side* seçilirse, çıktının yanına `<ad>_compare.mp4`
-(görselde `.png`) yazılır: üstte kaynak, altta sonuç, köşelerinde **RAW** ve **NEURAL ENHANCED** etiketleri
-(ikisi de değiştirilebilir, örneğin VISIEN ya da müşterinin adı). Kaynak, sonucun boyutuna ve kare hızına
-getirilir, ses kaynaktan gelir. **Fit 1080p** her yarıyı en fazla 1920 piksel yapar (paylaşmak için);
-**Full size** sonucun çözünürlüğünü kullanır.
+### Comparison copy
 
-## AI modelleri
+When **Export › Comparison** is set to *Top / bottom* or *Side by side*, Visien also writes `<name>_compare.mp4`
+(`.png` for images) next to the result: the source on top, the result below, with **RAW** and **NEURAL ENHANCED**
+labels in the corners (both can be changed, for example to VISIEN or a client's name). The source is scaled to the
+result's size and frame rate, and the audio comes from the source. **Fit 1080p** keeps each half at most 1920 pixels
+(for sharing); **Full size** uses the result's resolution.
 
-| Model | Ne yapar | Hız (RTX 5070 Ti, 16 GB) | Lisans | Boyut |
+## AI models
+
+| Model | What it does | Speed (RTX 5070 Ti, 16 GB) | Licence | Size |
 | --- | --- | --- | --- | --- |
-| **SeedVR2 3B FP8** | Tek adımlı difüzyonla restorasyon: bulanık, "boyanmış", sıkıştırılmış AI videosunda gerçek doku ve keskinlik. 480p–720p klipleri 1080p'ye çıkarır. | 480p → 1080p: kare başına ~3,5 s | Apache 2.0 | 3,4 GB + 0,5 GB VAE |
-| SeedVR2 7B (isteğe bağlı) | Daha fazla ayrıntı; yaklaşık 3 kat yavaş, 16 GB kartta Block Swap ile | — | Apache 2.0 | 8,3 GB |
-| **RIFE 4.26** | Ara kare: 24 → 48/60 fps, sahne geçişinde kareleri karıştırmaz | 480p, 2 s → 60 fps: ~4 s | MIT | 25 MB |
-| **GFPGAN 1.4** | Bozulan, eriyen yüzleri onarır; doğal sonuç için %40–60 güç | kare başına ~0,1 s | Apache 2.0 | 350 MB |
-| CodeFormer (isteğe bağlı) | En doğal yüz onarımı (Fidelity ayarlı) | GFPGAN'a yakın | **NTU S-Lab 1.0: ticari olmayan kullanım** | 380 MB |
-| **Color Match** | Kaynağın renklerini geri getirir; ayrıntıya ve DLSS ışığına dokunmaz | 4K: kare başına ~0,2 s (okuma/yazma dahil) | Visien | model yok |
+| **SeedVR2 3B FP8** | One-step diffusion restoration: real texture and sharpness in blurry, "painted", compressed AI video. Takes 480p–720p clips to 1080p. | 480p → 1080p: ~3.5 s per frame | Apache 2.0 | 3.4 GB + 0.5 GB VAE |
+| SeedVR2 7B (optional) | More detail; about 3× slower, with Block Swap on a 16 GB card | — | Apache 2.0 | 8.3 GB |
+| **RIFE 4.26** | In-between frames: 24 → 48/60 fps, never blends frames across a scene cut | 480p, 2 s → 60 fps: ~4 s | MIT | 25 MB |
+| **GFPGAN 1.4** | Repairs broken, melting faces; 40–60 % strength for a natural result | ~0.1 s per frame | Apache 2.0 | 350 MB |
+| CodeFormer (optional) | The most natural face restoration (adjustable Fidelity) | Close to GFPGAN | **NTU S-Lab 1.0: non-commercial use** | 380 MB |
+| **Color Match** | Restores the source's colours; leaves detail and DLSS lighting alone | 4K: ~0.2 s per frame (including reading and writing) | Visien | no model |
 
-- AI kartları varsayılan sırada **Visual Enhancer kartlarından önce** çalışır: SeedVR2 → Face Restore → Neural
-  Rendering → DLSS → RIFE → RTX Super Resolution → renk/keskinlik/gren. Neural Rendering, onarılmış yüzlere
-  gerçek cilt dokusunu geri koyar; RIFE büyütmeden önce çalıştığı için 4 kat az piksel işler.
-- Adımlar arasında görüntü kayıpsız (FFV1 / PNG) taşınır; ses kaynaktan alınır.
-- **SeedVR2 bellek ayarı otomatik:** Visien, PyTorch'u ekran kartının kendi belleğiyle sınırlar. Bellek yetmezse
-  Windows'un sistem RAM'ine taşıyıp işi 50–100 kat yavaşlatması yerine iş hata verir ve Visien daha küçük VAE
-  parçaları ve Block Swap ile kendiliğinden yeniden dener.
-- **SeedVR2 hangi kaynakta:** 480p–1080p AI çıktılarında. 1440p ve üstünde 16 GB kartta çok yavaşlar (3380×1440'ta
-  kare başına ~30 s); bu kaynaklarda Output Size'ı *Short side 1080* yap ya da SeedVR2'siz bir preset kullan.
-- **CodeFormer lisansı:** NTU S-Lab License 1.0 yalnızca ticari olmayan kullanıma izin verir. Müşteri işleri ve
-  ticari projeler için GFPGAN'ı kullan (varsayılan o). CodeFormer'ı kurarken lisansı onaylaman istenir.
-- Modeller resmî kaynaklarından iner (Hugging Face `numz/SeedVR2_comfyUI`, GitHub sürümleri) ve yayımlanan
-  SHA-256 değerleriyle doğrulanır.
+- In the default order the AI stages run **before the Visual Enhancer stages**: SeedVR2 → Face Restore → Neural
+  Rendering → DLSS → RIFE → RTX Super Resolution → colour/sharpening/grain → Color Match. Neural Rendering puts real
+  skin texture back on restored faces; RIFE runs before upscaling, so it processes 4× fewer pixels.
+- Frames travel between steps losslessly (FFV1 / PNG); audio is taken from the source.
+- **SeedVR2 memory is managed automatically:** Visien limits PyTorch to the GPU's own memory. Instead of Windows
+  spilling into system RAM and slowing the job down 50–100×, the job fails fast and Visien retries by itself with
+  smaller VAE tiles and Block Swap.
+- **Which sources suit SeedVR2:** 480p–1080p AI output. At 1440p and above it becomes very slow on a 16 GB card
+  (~30 s per frame at 3380×1440); for those sources set Output Size to *Short side 1080* or use a preset without
+  SeedVR2.
+- **CodeFormer licence:** NTU S-Lab License 1.0 only allows non-commercial use. Use GFPGAN (the default) for client
+  work and commercial projects. You are asked to accept the licence when installing CodeFormer.
+- Models are downloaded from their official sources (Hugging Face `numz/SeedVR2_comfyUI`, GitHub releases) and
+  verified against their published SHA-256 hashes.
 
-## Presetler
+## Presets
 
-| Preset | Ne yapar | Ek model |
+| Preset | What it does | Extra model |
 | --- | --- | --- |
-| **Visien** (önerilen) | Neural Rendering (Style 0, Intensity 1.20, Local Structure 0.85, Automatic Mask), DLSS **DLAA** temizliği, RTX Super Resolution ile **kısa kenarı 2160** (1080p → 4K; 4K klip 4K kalır). H.265 MP4, Best. | — |
-| **Visien 60** | Visien + NVIDIA Video Frame Generation ile 60 fps, sahne geçişi algılama. | — |
-| **Visien Film** | Visien + hafif, hareketli film greni (Amount 12). | — |
-| **Visien Native** | Yalnızca Neural Rendering + DLAA, kaynak boyutunda. En hızlı deneme. | — |
-| **Realism · Natural Skin** | Plastik ya da fazla doygun görünen AI klipleri için: daha yumuşak Neural Rendering, sakin renk ve parlak alanlar (Saturation −6, Highlights −12), 4K, ince gren. | — |
-| **Realism · SeedVR2 Restore** | En güçlü temizlik: SeedVR2 3B dokuyu geri getirir ve küçük klipleri 1080p'ye çıkarır, sonra Neural Rendering, RTX 4K, ince gren. Yavaş: önce 1–2 saniye önizle. | SeedVR2 3B |
-| **Realism · SeedVR2 Detail (7B)** | Aynısı, ayrıntı için ayarlanmış 7B "sharp" modelle. Kahraman planları ve fotoğraflar için. | SeedVR2 7B |
-| **Realism · Faces** | Yüzü bozulan planlar için: GFPGAN %45 güçte, sonra Neural Rendering, 4K, gren. Ticari kullanım serbest. | GFPGAN |
-| **Realism · Faces · CodeFormer** | Aynısı CodeFormer ile (Fidelity 0.7). Yalnızca ticari olmayan işler. | CodeFormer |
-| **Product · True Color** | Ürün, ambalaj ve marka çekimleri: Visien'in neural rendering'i ve 4K, sonra Color Match kaynağın renklerini birebir geri koyar (Original Colors 100, Fine). | AI ortamı |
-| **Realism · Natural Colors** | Visien görünümü, renklerin çoğu kaynaktan (Color Match %70): ten, yemek, moda. | AI ortamı |
-| **Smooth 60 · RIFE** | Visien + RIFE 4.26 ile 60 fps (büyütmeden önce, sahne geçişi korumalı). | RIFE |
-| **Clean 4K** | Görünümü değiştirmeden büyütme: DLAA + RTX Super Resolution ile 4K. Neural Rendering yok, hızlı. | — |
+| **Visien** (recommended) | Neural Rendering (Style 0, Intensity 1.20, Local Structure 0.85, Automatic Mask), DLSS **DLAA** clean-up, RTX Super Resolution to a **short side of 2160** (1080p → 4K; a 4K clip stays 4K). H.265 MP4, Best. | — |
+| **Visien 60** | Visien + 60 fps with NVIDIA Video Frame Generation and scene-cut detection. | — |
+| **Visien Film** | Visien + light, moving film grain (Amount 12). | — |
+| **Visien Native** | Neural Rendering + DLAA only, at the source size. The fastest test. | — |
+| **Realism · Natural Skin** | For AI clips that look plastic or oversaturated: softer Neural Rendering, calmer colours and highlights (Saturation −6, Highlights −12), 4K, fine grain. | — |
+| **Realism · SeedVR2 Restore** | The strongest clean-up: SeedVR2 3B restores texture and takes small clips to 1080p, then Neural Rendering, RTX 4K, fine grain. Slow: preview 1–2 seconds first. | SeedVR2 3B |
+| **Realism · SeedVR2 Detail (7B)** | The same with the 7B "sharp" model tuned for detail. For hero shots and photos. | SeedVR2 7B |
+| **Realism · Faces** | For shots where faces break: GFPGAN at 45 % strength, then Neural Rendering, 4K, grain. Commercial use allowed. | GFPGAN |
+| **Realism · Faces · CodeFormer** | The same with CodeFormer (Fidelity 0.7). Non-commercial work only. | CodeFormer |
+| **Product · True Color** | Product, packaging and brand shots: Visien's neural rendering and 4K, then Color Match puts the source's colours back exactly (Original Colors 100, Fine). | AI runtime |
+| **Realism · Natural Colors** | The Visien look with most of the colour from the source (Color Match 70 %): skin, food, fashion. | AI runtime |
+| **Smooth 60 · RIFE** | Visien + 60 fps with RIFE 4.26 (before upscaling, scene-cut aware). | RIFE |
+| **Clean 4K** | Upscaling without changing the look: DLAA + RTX Super Resolution to 4K. No Neural Rendering, fast. | — |
 
-Presetin üstünde Easy mode ayarlarını değiştirip **Preset › Save as new preset…** ile kendi presetini kaydedebilirsin.
-Presetler Visual Enhancer'ın preset biçimindedir (`schema_version 41`); **Export current settings…** ile dışarı
-aldığın dosyayı Visual Enhancer da açar (AI kartlarının ayarlarını Visual Enhancer yok sayar).
+Change the Easy mode controls on top of a preset and save your own with **Preset › Save as new preset…**. Presets use
+Visual Enhancer's preset format (`schema_version 41`); a file saved with **Export current settings…** also opens in
+Visual Enhancer (it ignores the AI stages' settings).
 
-Ekran görüntündeki Visual Enhancer ayarının birebir kopyası için: Visual Enhancer'ı kapat (ayarlar kapanırken
-kaydedilir) ve Visien'de **Preset › Copy settings from Visual Enhancer**'a bas.
+To copy your Visual Enhancer settings exactly: close Visual Enhancer (it saves its settings on exit) and press
+**Preset › Copy settings from Visual Enhancer** in Visien.
 
-### Görüntüleyici
+### Viewer
 
 | | |
 | --- | --- |
-| **Split** | Sürüklenebilir ayırıcı; solda kaynak, sağda Visien |
-| **Side by side** | İki pano, yakınlaştırma ve kaydırma birlikte |
-| **Top / bottom** | Kaynak üstte, Visien altta |
-| **Source / Visien** | Tek görüntü |
-| **Lossless** | Oynatma kopyaları yerine kayıpsız PNG kare (piksel düzeyinde karşılaştırma) |
-| **Fit / 1:1** | Ekrana sığdır / gerçek piksel |
+| **Split** | Draggable divider; source on the left, Visien on the right |
+| **Side by side** | Two panes that zoom and pan together |
+| **Top / bottom** | Source on top, Visien below |
+| **Source / Visien** | A single view |
+| **Lossless** | Lossless PNG frames instead of playback copies (pixel-level comparison) |
+| **Fit / 1:1** | Fit to the window / actual pixels |
 
-**Kısayollar:** `Boşluk` oynat/durdur · `←/→` kare (Shift ile 10 kare) · `P` önizleme · `1` Split ·
-`2` Side by side · `3` Source · `4` Visien · `5` Top / bottom · `F` sığdır · `Z` 1:1 · `L` Lossless · `Q` kuyruk ·
+**Shortcuts:** `Space` play/pause · `←/→` frame (10 frames with Shift) · `P` preview · `1` Split ·
+`2` Side by side · `3` Source · `4` Visien · `5` Top / bottom · `F` fit · `Z` 1:1 · `L` Lossless · `Q` queue ·
 `Ctrl+Enter` Render.
 
-## Dosyalar nereye gider
+## Where files go
 
-| Ne | Nerede |
+| What | Where |
 | --- | --- |
-| Render çıktıları | `Videolar\Visien` (Ayarlar › Output). Adın sonuna `_Visien` eklenir; var olan dosyanın üstüne yazılmaz. |
-| Önizlemeler | `data\previews` (kayıpsız FFV1; Ayarlar'dan sınır ve temizleme) |
-| AI ortamı ve modeller | `ai\site-packages`, `models\` |
-| AI ara dosyaları | `data\cache` (iş bitince silinir) |
-| Ayarlar, kuyruk, medya listesi, kendi presetlerin | `data\` |
-| Günlükler | `data\visien.log`, her AI adımı için `data\logs\ai-*.log`; Visual Enhancer günlüğünün yolu kuyruktaki işte yazar |
+| Rendered outputs | `Videos\Visien` (Settings › Output). `_Visien` is added to the name; existing files are never overwritten. |
+| Previews | `data\previews` (lossless FFV1; limit and clean-up in Settings) |
+| AI runtime and models | `ai\site-packages`, `models\` |
+| AI intermediate files | `data\cache` (deleted when the job ends) |
+| Settings, queue, media list, your presets | `data\` |
+| Logs | `data\visien.log`, `data\logs\ai-*.log` for each AI step; the Visual Enhancer log path is shown on the job in the queue |
 
-## Sorun giderme
+## Troubleshooting
 
-- **"Visual Enhancer not connected"**: Ayarlar › *Find automatically*.
-- **Pencere açılmıyor**: WebView2 eksik ya da bozuk olabilir; Visien tarayıcıda açılır. `Visien (browser).bat`
-  her zaman tarayıcıda açar. Ayrıntı `data\visien.log`.
-- **"CUDA 999 / engine poisoned"**: ekran kartı o an iş kabul etmedi (çoğunlukla aynı anda GPU kullanan başka bir
-  program). Visien kendiliğinden yeniden dener; sürerse diğer GPU programlarını kapat ya da Windows'u yeniden başlat.
-- **SeedVR2 çok yavaş**: klip 1080p'den büyükse Output Size'ı *Short side 1080* yap. Aynı anda Topaz, Resolve ya da
-  bir oyun açıksa kapat. Ayrıntı `data\logs\ai-seedvr2-*.log` (her aşamanın süresi ve bellek kullanımı).
-- **"Out of GPU memory"**: Visien önce daha küçük parçalarla kendisi yeniden dener. Yine olursa Advanced ›
-  SeedVR2 › Block Swap'ı artır ya da Temporal Window'u 5'te tut.
-- **Yüzlerde titreme**: Face Restore Strength'i %40–60'ta tut, Temporal Smoothing'i artır.
-- **AI modeli kurulamadı**: Ayarlar › AI models'te hata metni yazar; internet bağlantısını kontrol edip Install'a
-  yeniden bas. İndirmeler kaldığı yerden değil baştan başlar.
-- Kurulum denetimini yeniden çalıştırmak için `install.bat` (sonuç `check.log`).
+- **"Visual Enhancer not connected"**: Settings › *Find automatically*.
+- **The window does not open**: WebView2 may be missing or broken; Visien then opens in the browser.
+  `Visien (browser).bat` always opens in the browser. Details in `data\visien.log`.
+- **"CUDA 999 / engine poisoned"**: the GPU refused work at that moment (usually another program using the GPU at the
+  same time). Visien retries by itself; if it keeps happening, close other GPU programs or restart Windows.
+- **SeedVR2 is very slow**: if the clip is larger than 1080p, set Output Size to *Short side 1080*. Close Topaz,
+  Resolve or games running at the same time. Details in `data\logs\ai-seedvr2-*.log` (time and memory per stage).
+- **"Out of GPU memory"**: Visien first retries with smaller tiles by itself. If it still happens, raise Advanced ›
+  SeedVR2 › Block Swap or keep Temporal Window at 5.
+- **Flickering faces**: keep Face Restore Strength at 40–60 % and raise Temporal Smoothing.
+- **An AI model could not be installed**: Settings › AI models shows the error; check the internet connection and
+  press Install again. Downloads restart from the beginning.
+- To run the setup check again, run `install.bat` (result in `check.log`).
 
-## Paylaşma ve ürünleştirme
+## Sharing and licences
 
-Paylaşmak için **Visien-1.2.0-full.zip**'i ver; alan kişi açar, `install.bat`'ı çalıştırır ve Visual Enhancer'ı
-indirir. Paketi istediğin zaman yeniden üretmek için Visien'de **Ayarlar › Share Visien › Create full package**
-(Visien klasörünün dışında bir klasör seç; ~9 GB, birkaç dakika). Küçük paket için **Create small package**.
-Aynısı komut satırından: `runtime\python\python.exe dev\build_full_package.py full D:\Paylaş\Visien-full.zip`.
+To share Visien, give the full package; the other person extracts it, runs `install.bat` and downloads Visual
+Enhancer. Build the package whenever you like with **Settings › Share Visien › Create full package** (choose a
+folder outside the Visien folder; ~9 GB, a few minutes), or **Create small package** for the small one. The same from
+the command line: `runtime\python\python.exe dev\build_full_package.py full D:\Share\Visien-full.zip`.
 
-Ürün olarak satmayı düşünüyorsan bilmen gerekenler (hukuki görüş değildir):
+Licences (not legal advice):
 
-- **Visual Enhancer** (Merserk) *Merserk Source License 1.0* ile dağıtılıyor: çıktıları ticari olarak kullanmana
-  izin veriyor; uygulamayı yazılı izin olmadan yeniden dağıtmayı, başka bir ürüne koymayı ya da yeniden
-  markalamayı yasaklıyor. Visien onu içermez; ücretli satıştan önce Merserk'ten yazılı izin almanı öneririm.
-- **AI modelleri:** SeedVR2 (ByteDance Seed, Apache 2.0), Practical-RIFE (hzwer, MIT; mimari kodu
-  ComfyUI-Frame-Interpolation'dan, MIT), GFPGAN (TencentARC, Apache 2.0), YuNet (OpenCV, MIT) pakete girebilir.
-  SeedVR2'yi çalıştıran kod `vendor\seedvr2` altında, numz/ComfyUI-SeedVR2_VideoUpscaler'dan (Apache 2.0, değiştirilmeden).
-  **CodeFormer** NTU S-Lab License 1.0 ile ticari olmayan kullanımla sınırlıdır; pakete konmaz, kullanıcı kendi
-  onayıyla indirir. Ticari bir üründe CodeFormer'ı varsayılan yapma.
-- **PyTorch** (BSD-3) ve içindeki NVIDIA CUDA kütüphaneleri NVIDIA'nın yeniden dağıtım koşullarıyla gelir; OpenCV
-  (Apache 2.0), spandrel (MIT), diğer paketlerin lisansları `ai\site-packages\*.dist-info` içinde.
-- **NVIDIA DLSS, RTX, NVENC** NVIDIA'nın ticari markalarıdır; pazarlamada "NVIDIA onaylı" izlenimi verme.
-- Python (PSF), FastAPI (MIT), Uvicorn (BSD-3), pywebview (BSD-3), pythonnet (MIT), ffmpeg (BtbN GPL derlemesi,
-  GPLv3; lisans ve kaynak bilgisi `tools\ffmpeg` içinde). Yazı tipleri SIL Open Font License 1.1
+- **Visual Enhancer** (Merserk) is distributed under the *Merserk Source License 1.0*: its outputs may be used
+  commercially; redistributing the app, bundling it into another product or rebranding it without written permission
+  is not allowed. Visien does not include it; get written permission from Merserk before distributing Visien as a
+  paid product.
+- **AI models:** SeedVR2 (ByteDance Seed, Apache 2.0), Practical-RIFE (hzwer, MIT; architecture code from
+  ComfyUI-Frame-Interpolation, MIT), GFPGAN (TencentARC, Apache 2.0) and YuNet (OpenCV, MIT) may be bundled.
+  The code that runs SeedVR2 is in `vendor\seedvr2`, from numz/ComfyUI-SeedVR2_VideoUpscaler (Apache 2.0,
+  unmodified). **CodeFormer** is limited to non-commercial use by the NTU S-Lab License 1.0; it is never bundled
+  and users download it with their own consent. Do not make CodeFormer the default in a commercial product.
+- **PyTorch** (BSD-3) and the NVIDIA CUDA libraries inside it come under NVIDIA's redistribution terms; OpenCV
+  (Apache 2.0), spandrel (MIT) and the other packages' licences are in `ai\site-packages\*.dist-info`.
+- **NVIDIA DLSS, RTX and NVENC** are trademarks of NVIDIA Corporation; AMD and Radeon are trademarks of Advanced Micro
+  Devices. Visien is not affiliated with or endorsed by NVIDIA, AMD or Merserk.
+- Python (PSF), FastAPI (MIT), Uvicorn (BSD-3), pywebview (BSD-3), pythonnet (MIT), ffmpeg (BtbN GPL build, GPLv3;
+  licence and source information in `tools\ffmpeg`). Fonts: SIL Open Font License 1.1
   (`ui\assets\fonts\LICENSE-fonts.txt`).
-- Visien'in kendi kodu için bir lisans dosyası eklenmedi; nasıl lisanslayacağına sen karar ver.
-
----
-
-## English summary
-
-**Visien** is a desktop enhancement studio for AI-generated video and images. It drives
-[Visual Enhancer](https://github.com/Merserk/dlss5-visual-enhancer) by Merserk (DLSS 5 Neural Rendering and the
-NVIDIA RTX / VFX stages) through its `VE_CLI.exe`, and adds its own GPU models: **SeedVR2** (ByteDance, one-step
-diffusion restoration), **RIFE 4.26** frame interpolation and **face restoration** (GFPGAN 1.4, or CodeFormer for
-non-commercial work). Everything runs in one ordered pipeline with lossless hand-offs, a native app window, an
-**Easy mode** with seven simple controls on top of a preset, hover help on every control, short lossless
-previews, a render queue and ready-made realism presets.
-
-**Requirements:** Windows 11 64-bit, an NVIDIA GeForce RTX GPU (12 GB+ for the AI models, 16 GB recommended;
-RTX 40/50 for frame generation) with a current driver, WebView2 (built into Windows 11), ~10 GB of disk, and
-Visual Enhancer v18 or newer downloaded separately (Visien does not include it). On an **AMD Radeon RX 7000/9000**
-only the AI stages run (SeedVR2, RIFE, face restoration), through AMD's ROCm build of PyTorch, which Visien installs
-for the detected card; Visual Enhancer's DLSS/RTX stages need NVIDIA.
-
-**Install:** `Visien-1.2.0-full.zip` (~8 GB) contains Python, all packages, ffmpeg, the AI runtime and the
-recommended models, so setup needs no internet. Run `install.bat`, start **Visien** from the desktop shortcut and
-press **Find automatically** to connect Visual Enhancer. The slim package downloads everything instead.
-
-**Licensing:** Visual Enhancer: Merserk Source License 1.0 (outputs may be used commercially; the app may not be
-redistributed). SeedVR2 and GFPGAN: Apache 2.0; RIFE and YuNet: MIT. CodeFormer: NTU S-Lab License 1.0
-(non-commercial only) and is never bundled. NVIDIA, DLSS and RTX are trademarks of NVIDIA Corporation.
+- Visien's own source code is not published under an open-source licence yet.
