@@ -17,7 +17,7 @@ import uuid
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
-from . import media, models, pipeline, stages, ve
+from . import compare, media, models, pipeline, stages, ve
 from .config import CONFIG, DATA_DIR, PREVIEW_DIR, output_dir
 from .library import LIBRARY
 
@@ -28,7 +28,7 @@ FINISHED = {"done", "failed", "cancelled"}
 @dataclass
 class Job:
     id: str
-    kind: str                      # render | preview
+    kind: str                      # render | preview | colors | compare (the last two work on a finished render)
     media_id: str
     name: str
     source: str
@@ -50,6 +50,9 @@ class Job:
     length: float = 0.0
     key: str = ""
     result: dict = field(default_factory=dict)
+    # follow-up jobs on a finished render
+    input: str = ""                # the rendered file they start from
+    compare: str = ""              # comparison copy written by this job
 
     def to_json(self) -> dict:
         data = asdict(self)
@@ -147,6 +150,47 @@ class Worker:
         self._render_wake.set()
         return created
 
+    FOLLOW_UPS = {"colors": "Original colours", "compare": "Comparison"}
+
+    def follow_up(self, job_id: str, action: str, options: dict | None = None) -> str:
+        """Queues work on a finished render: restore the source's colours, or write a comparison copy."""
+        if action not in self.FOLLOW_UPS:
+            raise ValueError("Unknown action.")
+        parent = self._find(job_id)
+        if parent.state != "done" or not parent.output or not Path(parent.output).is_file():
+            raise ValueError("This render has no finished file to work on (it may have been moved or deleted).")
+        if not Path(parent.source).is_file():
+            raise ValueError(f"The source file is not there any more: {parent.source}")
+        options = options or {}
+        settings = dict(parent.settings)
+        kind = parent.media_kind
+        if action == "colors":
+            if media.probe(parent.output).hdr:
+                raise ValueError("Original colours works on SDR renders; this one is HDR.")
+            settings.update({f"vz_{kind}_ai": ["color_match"], f"{kind}_enabled_stages": [],
+                             "color_match_strength": float(options.get("strength", 100)),
+                             "color_match_brightness": float(options.get("brightness", 0)),
+                             "color_match_scale": str(options.get("scale") or "fine")})
+            missing = models.missing(settings, kind)
+            if missing:
+                raise ValueError(models.missing_message(missing))
+        layout = str(options.get("layout") or settings.get("vz_compare") or "off")
+        if action == "compare" and layout not in ("stack", "side"):
+            layout = "stack"
+        settings["vz_compare"] = layout if (action == "compare" or options.get("with_compare")) else "off"
+        for key in ("vz_compare_before", "vz_compare_after", "vz_compare_size"):
+            if options.get(key):
+                settings[key] = str(options[key])
+        job = Job(id=uuid.uuid4().hex[:10], kind=action, media_id=parent.media_id, name=parent.name,
+                  source=parent.source, media_kind=kind, settings=settings, preset=self.FOLLOW_UPS[action],
+                  input=parent.output)
+        with self.lock:
+            self.renders.append(job)
+            self.running = True
+        self._save()
+        self._render_wake.set()
+        return job.id
+
     def start(self) -> None:
         with self.lock:
             self.running = True
@@ -178,7 +222,7 @@ class Worker:
             if job.state in FINISHED:
                 job.state, job.progress, job.message, job.error = "pending", 0.0, "Waiting", ""
                 job.started = job.finished = 0.0
-                job.output = job.target = ""
+                job.output = job.target = job.compare = ""
                 self.running = True
         self._save()
         self._render_wake.set()
@@ -252,9 +296,11 @@ class Worker:
     def _target_for(self, job: Job) -> Path:
         source = Path(job.source)
         folder = output_dir()
-        folder.mkdir(parents=True, exist_ok=True)
         suffix = CONFIG.get("suffix") if CONFIG.get("naming") == "suffix" else ""
         stem = source.stem + (suffix or "")
+        if job.kind == "colors":  # next to the render it starts from
+            folder, stem = Path(job.input).parent, Path(job.input).stem + "_colors"
+        folder.mkdir(parents=True, exist_ok=True)
         extension = stages.output_extension(job.settings, job.media_kind)
         with self.lock:
             reserved = {Path(other.target).name.lower() for other in self.renders
@@ -270,6 +316,9 @@ class Worker:
     def _render(self, job: Job) -> None:
         if not Path(job.source).is_file():
             raise FileNotFoundError(f"Source file not found: {job.source}")
+        if job.kind in ("colors", "compare"):
+            self._follow(job)
+            return
         target = self._target_for(job)
         job.target = str(target)
         self.log(f"Render: {job.name} ({job.preset or 'custom settings'})")
@@ -284,6 +333,39 @@ class Worker:
                               retries=2, cancel=self._cancel_render, progress=progress, log=self.log,
                               comparison=str(job.settings.get("vz_compare") or "off") != "off")
         job.output, job.log_path = result.output, result.log_path
+        copy = compare.target_for(target, job.media_kind)
+        if str(job.settings.get("vz_compare") or "off") != "off" and copy.is_file():
+            job.compare = str(copy)
+
+    def _follow(self, job: Job) -> None:
+        rendered = Path(job.input)
+        if not rendered.is_file():
+            raise FileNotFoundError(f"Rendered file not found: {job.input}")
+
+        def progress(fraction: float, message: str) -> None:
+            job.progress, job.message = min(fraction, 0.999), message or "Working"
+
+        if job.kind == "compare":
+            self.log(f"Comparison: {job.name}")
+            progress(0.1, "Writing the comparison copy")
+            copy = compare.make(job.source, str(rendered), job.settings, job.media_kind, self.log)
+            job.output = job.compare = str(copy)
+            with self.lock:  # the render's own row now offers "Comparison" too
+                for other in self.renders:
+                    if other is not job and other.output == job.input:
+                        other.compare = str(copy)
+            return
+        target = self._target_for(job)
+        job.target = str(target)
+        self.log(f"Original colours: {job.name} → {target.name}")
+        with_copy = str(job.settings.get("vz_compare") or "off") != "off"
+        result = pipeline.restore_colors(job.source, str(rendered), str(target), job.settings, job.media_kind,
+                                         cancel=self._cancel_render, progress=progress, log=self.log, retries=1,
+                                         comparison=with_copy)
+        job.output, job.log_path = result.output, result.log_path
+        copy = compare.target_for(target, job.media_kind)
+        if with_copy and copy.is_file():
+            job.compare = str(copy)
 
     # ------------------------------------------------------------ previews
 

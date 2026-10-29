@@ -9,7 +9,10 @@ shifted hue, a changed saturation or a different overall brightness is pulled ba
     Original Brightness  share of the L (lightness) difference; 0 keeps DLSS's lighting
     Precision            size of the comparison grid: Broad (whole areas) to Fine (small objects such as labels)
 
-Runs on the GPU with PyTorch when one is available, otherwise on the CPU with OpenCV.
+Where a source colour cannot exist at the result's lightness (DLSS often renders a yellow logo darker, and a dark
+saturated yellow clips to orange), the source's lightness is brought back only there, so brand colours keep their hue.
+
+Runs on the GPU with PyTorch when one is available, otherwise on the CPU with NumPy and OpenCV.
 """
 
 from __future__ import annotations
@@ -134,7 +137,7 @@ class Matcher:
                 self.torch = torch
                 self.device = torch.device("cuda")
                 self._kernel = self._gauss_kernel()
-        except Exception:  # noqa: BLE001 - OpenCV path below
+        except Exception:  # noqa: BLE001 - CPU path below
             self.torch = None
         self.device_name = "cuda" if self.torch is not None else "cpu"
 
@@ -160,10 +163,12 @@ class Matcher:
         x = F.conv2d(x, k.view(1, 1, -1, 1).expand(3, 1, -1, 1), groups=3)
         return x[0]
 
+    # -- colour maths, shared by the GPU (torch) and CPU (numpy) paths ---------
+
     @staticmethod
-    def _to_lab(rgb, torch):
+    def _to_lab(rgb, xp):
         """sRGB (3, h, w) in 0..1 -> CIELAB (D65)."""
-        lin = torch.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+        lin = xp.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
         r, g, b = lin[0], lin[1], lin[2]
         x = (0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047
         y = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b
@@ -171,30 +176,177 @@ class Matcher:
         eps, kappa = 216 / 24389, 24389 / 27
 
         def f(t):
-            return torch.where(t > eps, t.clamp(min=1e-12) ** (1 / 3), (kappa * t + 16) / 116)
+            return xp.where(t > eps, xp.clip(t, 1e-12, None) ** (1 / 3), (kappa * t + 16) / 116)
 
         fx, fy, fz = f(x), f(y), f(z)
-        return torch.stack([116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)])
+        return xp.stack([116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)])
 
     @staticmethod
-    def _from_lab(lab, torch):
-        fy = (lab[0] + 16) / 116
-        fx = fy + lab[1] / 500
-        fz = fy - lab[2] / 200
+    def _to_linear(light, a, b, xp):
+        """CIELAB -> linear sRGB (3, h, w), not clipped, so colours outside sRGB can be detected."""
+        fy = (light + 16) / 116
+        fx = fy + a / 500
+        fz = fy - b / 200
         eps, kappa = 216 / 24389, 24389 / 27
 
         def finv(t):
             t3 = t ** 3
-            return torch.where(t3 > eps, t3, (116 * t - 16) / kappa)
+            return xp.where(t3 > eps, t3, (116 * t - 16) / kappa)
 
         x = finv(fx) * 0.95047
-        y = torch.where(lab[0] > kappa * eps, fy ** 3, lab[0] / kappa)
+        y = xp.where(light > kappa * eps, fy ** 3, light / kappa)
         z = finv(fz) * 1.08883
-        r = 3.2404542 * x - 1.5371385 * y - 0.4985314 * z
-        g = -0.9692660 * x + 1.8760108 * y + 0.0415560 * z
-        b = 0.0556434 * x - 0.2040259 * y + 1.0572252 * z
-        lin = torch.stack([r, g, b]).clamp(0, 1)
-        return torch.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+        return xp.stack([3.2404542 * x - 1.5371385 * y - 0.4985314 * z,
+                         -0.9692660 * x + 1.8760108 * y + 0.0415560 * z,
+                         0.0556434 * x - 0.2040259 * y + 1.0572252 * z])
+
+    @staticmethod
+    def _encode(lin, xp):
+        lin = xp.clip(lin, 0.0, 1.0)
+        return xp.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+
+    def _fits(self, light, a, b, xp):
+        lin = self._to_linear(light, a, b, xp)
+        return ((lin >= -1e-3) & (lin <= 1 + 1e-3)).all(0)
+
+    def _combine(self, lab, delta, xp):
+        """Adds the corrected colour to the result and keeps it displayable.
+
+        A colour from the source does not always exist at the result's lightness: DLSS often renders a yellow logo
+        darker, and a bright saturated yellow cannot be dark (sRGB clips it to orange or brown). Where the corrected
+        colour falls outside sRGB, the source's lightness is brought back only as far as needed (found per pixel by
+        bisection, so there are no steps); if even full lightness is not enough, saturation is reduced while the
+        hue is kept. Everywhere else DLSS's lighting stays as set by Original Brightness.
+        """
+        base, dl = lab[0], delta[0]
+        ab = lab[1:] + delta[1:] * self.color
+        lo = xp.full_like(base, self.light)
+        light = base + dl * lo
+        ok = self._fits(light, ab[0], ab[1], xp)
+        if not bool(ok.all()):
+            hi = xp.ones_like(base)
+            reachable = self._fits(base + dl, ab[0], ab[1], xp)
+            t_lo, t_hi = lo.clone() if xp is not np else lo.copy(), hi
+            for _ in range(7):
+                mid = (t_lo + t_hi) / 2
+                fits = self._fits(base + dl * mid, ab[0], ab[1], xp)
+                t_hi = xp.where(fits, mid, t_hi)
+                t_lo = xp.where(fits, t_lo, mid)
+            t = xp.where(ok, lo, xp.where(reachable, t_hi, hi))
+            light = base + dl * t
+            scale = xp.ones_like(base)
+            if not bool(reachable.all()):
+                s_lo, s_hi = xp.zeros_like(base), xp.ones_like(base)
+                for _ in range(7):
+                    mid = (s_lo + s_hi) / 2
+                    fits = self._fits(light, ab[0] * mid, ab[1] * mid, xp)
+                    s_lo = xp.where(fits, mid, s_lo)
+                    s_hi = xp.where(fits, s_hi, mid)
+                scale = xp.where(ok | reachable, scale, s_lo)
+            ab = ab * scale
+        return self._encode(self._to_linear(light, ab[0], ab[1], xp), xp)
+
+    # -- GPU (PyTorch) --------------------------------------------------------
+
+    def _gauss_kernel(self):
+        torch = self.torch
+        radius = int(SIGMA * 3 + 0.5)
+        x = torch.arange(-radius, radius + 1, dtype=torch.float32, device=self.device)
+        k = torch.exp(-(x ** 2) / (2 * SIGMA ** 2))
+        return k / k.sum()
+
+    def _blur(self, t):
+        """Separable Gaussian blur of a (3, h, w) tensor with reflected borders."""
+        torch = self.torch
+        F = torch.nn.functional  # noqa: N806
+        k = self._kernel
+        pad = k.numel() // 2
+        x = t.unsqueeze(0)
+        x = F.pad(x, (pad, pad, 0, 0), mode="reflect")
+        x = F.conv2d(x, k.view(1, 1, 1, -1).expand(3, 1, 1, -1), groups=3)
+        x = F.pad(x, (0, 0, pad, pad), mode="reflect")
+        x = F.conv2d(x, k.view(1, 1, -1, 1).expand(3, 1, -1, 1), groups=3)
+        return x[0]
+
+    # -- colour maths, shared by the GPU (torch) and CPU (numpy) paths ---------
+
+    @staticmethod
+    def _to_lab(rgb, xp):
+        """sRGB (3, h, w) in 0..1 -> CIELAB (D65)."""
+        lin = xp.where(rgb <= 0.04045, rgb / 12.92, ((rgb + 0.055) / 1.055) ** 2.4)
+        r, g, b = lin[0], lin[1], lin[2]
+        x = (0.4124564 * r + 0.3575761 * g + 0.1804375 * b) / 0.95047
+        y = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b
+        z = (0.0193339 * r + 0.1191920 * g + 0.9503041 * b) / 1.08883
+        eps, kappa = 216 / 24389, 24389 / 27
+
+        def f(t):
+            return xp.where(t > eps, xp.clip(t, 1e-12, None) ** (1 / 3), (kappa * t + 16) / 116)
+
+        fx, fy, fz = f(x), f(y), f(z)
+        return xp.stack([116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)])
+
+    @staticmethod
+    def _to_linear(light, a, b, xp):
+        """CIELAB -> linear sRGB (3, h, w), not clipped, so colours outside sRGB can be detected."""
+        fy = (light + 16) / 116
+        fx = fy + a / 500
+        fz = fy - b / 200
+        eps, kappa = 216 / 24389, 24389 / 27
+
+        def finv(t):
+            t3 = t ** 3
+            return xp.where(t3 > eps, t3, (116 * t - 16) / kappa)
+
+        x = finv(fx) * 0.95047
+        y = xp.where(light > kappa * eps, fy ** 3, light / kappa)
+        z = finv(fz) * 1.08883
+        return xp.stack([3.2404542 * x - 1.5371385 * y - 0.4985314 * z,
+                         -0.9692660 * x + 1.8760108 * y + 0.0415560 * z,
+                         0.0556434 * x - 0.2040259 * y + 1.0572252 * z])
+
+    @staticmethod
+    def _encode(lin, xp):
+        lin = xp.clip(lin, 0.0, 1.0)
+        return xp.where(lin <= 0.0031308, lin * 12.92, 1.055 * lin ** (1 / 2.4) - 0.055)
+
+    def _combine(self, lab, delta, xp):
+        """Adds the corrected colour to the result and keeps it displayable.
+
+        A colour from the source does not always exist at the result's lightness: DLSS often renders a yellow logo
+        darker, and a bright saturated yellow cannot be dark (sRGB clips it to orange or brown). Where the corrected
+        colour falls outside sRGB, the source's lightness is brought back step by step, only as far as needed;
+        if even that is not enough, saturation is reduced while the hue is kept. Everywhere else DLSS's lighting
+        stays as set by Original Brightness.
+        """
+        tol = 1e-3
+        light0, ab = lab[0], lab[1:] + delta[1:] * self.color
+        steps = [self.light + (1.0 - self.light) * k / 4 for k in range(5)]
+        final_l = light0 + delta[0] * steps[-1]
+        settled = None
+        for t in steps:
+            candidate = light0 + delta[0] * t
+            lin = self._to_linear(candidate, ab[0], ab[1], xp)
+            fits = ((lin >= -tol) & (lin <= 1 + tol)).all(0)
+            new = fits if settled is None else fits & ~settled
+            final_l = xp.where(new, candidate, final_l)
+            settled = fits if settled is None else settled | fits
+            if bool(settled.all()):
+                break
+        scale = xp.ones_like(final_l)
+        if not bool(settled.all()):
+            for s in (0.9, 0.8, 0.7, 0.6, 0.5, 0.4):
+                lin = self._to_linear(final_l, ab[0] * s, ab[1] * s, xp)
+                fits = ((lin >= -tol) & (lin <= 1 + tol)).all(0)
+                new = fits & ~settled
+                scale = xp.where(new, s, scale)
+                settled = settled | fits
+                if bool(settled.all()):
+                    break
+            scale = xp.where(settled, scale, 0.4)
+        return self._encode(self._to_linear(final_l, ab[0] * scale, ab[1] * scale, xp), xp)
+
+    # -- GPU (PyTorch) --------------------------------------------------------
 
     def _apply_torch(self, frame: np.ndarray, ref_small: np.ndarray, peak: float) -> np.ndarray:
         torch = self.torch
@@ -206,32 +358,30 @@ class Matcher:
             gw, gh = self.grid
             small = F.interpolate(out.unsqueeze(0), size=(gh, gw), mode="area")[0]
             delta = self._blur(self._to_lab(ref, torch)) - self._blur(self._to_lab(small, torch))
-            delta[0] *= self.light
-            delta[1:] *= self.color
             delta = F.interpolate(delta.unsqueeze(0), size=(self.height, self.width), mode="bicubic",
                                   align_corners=False)[0]
-            lab = self._to_lab(out, torch) + delta
-            rgb = self._from_lab(lab, torch)
+            rgb = self._combine(self._to_lab(out, torch), delta, torch)
             result = (rgb * peak).round().clamp(0, peak).permute(1, 2, 0)
             dtype = torch.uint8 if peak == 255 else torch.int32
             return result.to(dtype).cpu().numpy().astype(frame.dtype)
 
-    # -- CPU (OpenCV) ---------------------------------------------------------
+    # -- CPU (NumPy / OpenCV) -------------------------------------------------
 
-    def _apply_cv(self, frame: np.ndarray, ref_small: np.ndarray, peak: float) -> np.ndarray:
+    def _apply_cpu(self, frame: np.ndarray, ref_small: np.ndarray, peak: float) -> np.ndarray:
         import cv2  # noqa: WPS433
 
         out = frame.astype(np.float32) / peak
         gw, gh = self.grid
         small = cv2.resize(out, (gw, gh), interpolation=cv2.INTER_AREA)
         ref = ref_small.astype(np.float32) / 255.0
-        blur = lambda image: cv2.GaussianBlur(image, (0, 0), SIGMA, borderType=cv2.BORDER_REFLECT)  # noqa: E731
-        delta = blur(cv2.cvtColor(ref, cv2.COLOR_RGB2Lab)) - blur(cv2.cvtColor(small, cv2.COLOR_RGB2Lab))
-        delta[..., 0] *= self.light
-        delta[..., 1:] *= self.color
-        delta = cv2.resize(delta, (self.width, self.height), interpolation=cv2.INTER_CUBIC)
-        lab = cv2.cvtColor(out, cv2.COLOR_RGB2Lab) + delta
-        rgb = np.clip(cv2.cvtColor(lab, cv2.COLOR_Lab2RGB), 0, 1)
+
+        def blur(image):
+            return np.stack([cv2.GaussianBlur(c, (0, 0), SIGMA, borderType=cv2.BORDER_REFLECT) for c in image])
+
+        lab_of = lambda image: self._to_lab(np.moveaxis(image, 2, 0), np)  # noqa: E731
+        delta = blur(lab_of(ref)) - blur(lab_of(small))
+        delta = np.stack([cv2.resize(c, (self.width, self.height), interpolation=cv2.INTER_CUBIC) for c in delta])
+        rgb = np.moveaxis(self._combine(lab_of(out), delta, np), 0, 2)
         return np.round(rgb * peak).astype(frame.dtype)
 
     def apply(self, frame: np.ndarray, ref_small: np.ndarray) -> np.ndarray:
@@ -240,7 +390,7 @@ class Matcher:
             return frame
         if self.torch is not None:
             return self._apply_torch(frame, ref_small, peak)
-        return self._apply_cv(frame, ref_small, peak)
+        return self._apply_cpu(frame, ref_small, peak)
 
 
 def _check_aspect(width: int, height: int, ref_width: int, ref_height: int) -> None:

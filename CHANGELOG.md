@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.0
+- **Fix a finished render:** every finished render in the queue has an *Original colors* button (Color Match on the
+  finished file, saved as `_colors` with a comparison copy) and a *Compare* button (writes the comparison copy),
+  without rendering again. Once a comparison exists the button shows it in its folder.
+- **Color Match keeps brand colours:** where a source colour cannot exist at the result's lightness (a yellow logo
+  that DLSS rendered darker turns orange or brown), the source's lightness comes back only there, found per pixel.
+  On a Shell station shot the logo's hue went from 39° (red-orange) back to 64° (source: 67°) at Fine precision,
+  while the picture's overall lightness stayed as DLSS rendered it.
+- **Comparison Copy** in Easy mode.
+- Plan warnings: strong Neural Rendering (intensity above 1.5 or several passes) without Color Match, and output
+  larger than 4K because several upscalers are on.
+
 ## 1.3.1
 - Fixed: RIFE, SeedVR2, Face Restore and Color Match failed with "OSError: [Errno 22] Invalid argument" in 1.3.0
   (the lossless hand-off files were tagged with a colour-space name ffmpeg's encoder does not accept).

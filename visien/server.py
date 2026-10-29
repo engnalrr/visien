@@ -403,6 +403,8 @@ def queue_action(action: str, body: dict = Body(default={})):
         w.move(job_id, 1)
     elif action == "clear":
         w.clear_finished()
+    elif action in ("colors", "compare"):
+        w.follow_up(job_id, action, body.get("options") or {})
     else:
         raise KeyError(f"Unknown queue action: {action}")
     return w.state()

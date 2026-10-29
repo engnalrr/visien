@@ -1,4 +1,4 @@
-# Visien 1.3
+# Visien 1.4
 
 ![Visien](docs/assets/screenshot.png)
 
@@ -12,8 +12,8 @@ Topaz-style desktop app. Try settings on a few seconds of your clip, compare the
 then queue the settings you like and render every file.
 
 - A desktop app in its own window (no browser needed)
-- **Easy mode:** eight short controls on top of a preset (Realism, AI Restore, Output Size, Sharpness, Film Grain,
-  Smooth Motion, Original Colors, Faces). **Advanced:** every stage and every setting.
+- **Easy mode:** nine short controls on top of a preset (Realism, AI Restore, Output Size, Sharpness, Film Grain,
+  Smooth Motion, Original Colors, Faces, Comparison Copy). **Advanced:** every stage and every setting.
 - **Hover help** on every control, explaining what it does
 - **AI models** (run on the GPU in Visien's own AI runtime):
   - **SeedVR2** (ByteDance): brings real texture back to soft, compressed AI video and upscales it to 1080p
@@ -23,6 +23,8 @@ then queue the settings you like and render every file.
     the detail and light DLSS adds
 - **Clean Shot Starts:** the first frames of each shot in a multi-shot video no longer look unprocessed
 - **Comparison copy:** a top/bottom (or side-by-side) video next to the result, labelled RAW / NEURAL ENHANCED
+- **Fix a finished render:** *Original colors* and *Compare* buttons on every finished render in the queue, without
+  rendering again
 - Every Visual Enhancer stage: DLSS Neural Rendering, DLSS Super Resolution, Ray Reconstruction,
   RTX Super Resolution, RTX Video HDR, DLSS / FSR / NVIDIA Frame Generation, ReShade, Coloring, Sharpening,
   Grain, NVIDIA Video Super Resolution, Lightweight Upscale
@@ -113,7 +115,7 @@ Visien writes the output itself.
 2. Pick a file in the list on the left. Video and image pipelines are set separately; both are saved in the same
    preset.
 3. Choose **Easy** or **Advanced** at the top of the right panel:
-   - **Easy:** the preset's description at the top and eight controls below it. Changing a control also sets the
+   - **Easy:** the preset's description at the top and nine controls below it. Changing a control also sets the
      stages underneath; the **Runs** line shows which steps run, in which order. You can switch to Advanced without
      losing anything.
    - **Advanced:** turn stages on or off, reorder them with the arrows and edit their settings. Values that differ
@@ -143,6 +145,12 @@ the source, but only corrects **colour over broad areas**:
 - **Original Brightness:** how much of the overall brightness and contrast returns. At 0, DLSS's lighting stays.
 - **Precision:** Broad (large areas), Balanced, Fine (small objects such as labels and logos too).
 - Works after frame generation (RIFE, Frame Generation) and upscaling as well; the source is aligned in time.
+- Where a source colour cannot exist at the result's lightness, the source's lightness comes back **only there**:
+  DLSS often renders a yellow logo darker, and a dark saturated yellow turns orange or brown on screen. Visien finds,
+  per pixel, the smallest lightness change that keeps the colour displayable, so brand colours keep their hue
+  while the rest of the picture keeps DLSS's lighting.
+- Strong Neural Rendering (intensity above 1.5 or several passes) shifts colours the most; the plan under the
+  stages warns when it is on without Color Match.
 
 ### Clean Shot Starts
 
@@ -158,7 +166,17 @@ When **Export › Comparison** is set to *Top / bottom* or *Side by side*, Visie
 (`.png` for images) next to the result: the source on top, the result below, with **RAW** and **NEURAL ENHANCED**
 labels in the corners (both can be changed, for example to VISIEN or a client's name). The source is scaled to the
 result's size and frame rate, and the audio comes from the source. **Fit 1080p** keeps each half at most 1920 pixels
-(for sharing); **Full size** uses the result's resolution.
+(for sharing); **Full size** uses the result's resolution. **Comparison Copy** is also in Easy mode.
+
+### Fixing a finished render
+
+Every finished render in the queue has two buttons, so nothing has to be rendered again:
+
+- **Original colors** runs Color Match on the finished file against its source and saves `<name>_colors.mp4` next
+  to it, with a comparison copy. It uses Original Colors from the panel when that is on, otherwise 100 % with Fine
+  precision. HDR renders are not supported.
+- **Compare** writes the comparison copy (`<name>_compare.mp4`); afterwards the button turns into **Comparison**
+  and shows the file in its folder. Top / bottom or side by side follows Comparison Copy in the panel.
 
 ## AI models
 

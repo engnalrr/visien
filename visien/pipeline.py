@@ -164,6 +164,38 @@ def run(source: str, target: str, settings: dict, kind: str, *, name: str = "Vis
     return ve.RenderResult(str(target), round(time.time() - started, 2), log_path)
 
 
+def restore_colors(source: str, rendered: str, target: str, settings: dict, kind: str, *,
+                   cancel: threading.Event | None = None, progress: Callable[[float, str], None] | None = None,
+                   log: Callable[[str], None] | None = None, retries: int = 1,
+                   comparison: bool = False) -> ve.RenderResult:
+    """Color Match on a finished render: brings the source's colours back without rendering it again."""
+    log = log or (lambda _text: None)
+    started = time.time()
+    work = CACHE_DIR / f"job_{uuid.uuid4().hex[:10]}"
+    work.mkdir(parents=True, exist_ok=True)
+    raw = work / ("colors_raw.mkv" if kind == "video" else "colors.png")
+    stage_settings = dict(settings, _color_reference=str(source))
+
+    def sub(fraction: float, message: str) -> None:
+        if progress:
+            progress(0.95 * max(0.0, min(1.0, fraction)), message)
+
+    try:
+        outcome = _retrying(lambda: ai_engine.run_stage("color_match", str(rendered), str(raw), stage_settings, kind,
+                                                        cancel=cancel, progress=sub, log=log),
+                            cancel=cancel, progress=sub, log=log, retries=retries) or {}
+        if progress:
+            progress(0.96, "Writing the final file")
+        media.encode_export(raw, Path(target), settings, kind, audio_source=rendered if kind == "video" else None)
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+    if comparison:
+        _comparison(source, target, settings, kind, log)
+    if progress:
+        progress(1.0, "Done")
+    return ve.RenderResult(str(target), round(time.time() - started, 2), outcome.get("log_path", ""))
+
+
 def _comparison(source: str, target: str, settings: dict, kind: str, log) -> None:
     try:
         compare.make(source, target, settings, kind, log)

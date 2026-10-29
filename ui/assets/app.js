@@ -872,6 +872,7 @@
       grain: on.has('grain') ? Number(st.grain_amount) : 0,
       faces: on.has('face_restore') ? (Number(st.face_blend) >= 70 ? 'strong' : 'natural') : 'off',
       colors: on.has('color_match') ? Number(st.color_match_strength) : 0,
+      compare: ['stack', 'side'].includes(st.vz_compare) ? st.vz_compare : 'off',
     };
   }
 
@@ -915,6 +916,8 @@
     } else if (id === 'colors') {
       applyEnabled('color_match', value > 0, true);
       if (value > 0) Object.assign(st, { color_match_strength: value, color_match_scale: st.color_match_scale || 'balanced' });
+    } else if (id === 'compare') {
+      st.vz_compare = value;
     } else if (id === 'faces') {
       applyEnabled('face_restore', value !== 'off', true);
       if (value !== 'off') {
@@ -1611,6 +1614,12 @@
       if (j.state === 'pending') { act('up', 'Move up', call('up'), index === 0); act('down', 'Move down', call('down'), index === jobs.length - 1); act('x', 'Cancel', call('cancel')); }
       if (j.state === 'rendering') act('stop', 'Stop this render', call('cancel'));
       if (j.state === 'done') act('reveal', 'Show in folder', () => api('/reveal', { path: j.output }).catch(fail));
+      if (j.state === 'done' && j.kind !== 'compare') {
+        const textAct = (name, label, tip, run) => actions.append(h('button', { class: 'btn btn-sm btn-quiet q-text-btn', 'data-tip': tip, onclick: run }, h('span', { html: icon(name) }), label));
+        if (j.compare) textAct('stack', 'Comparison', 'Shows the comparison copy (source and result in one video) in its folder.', () => api('/reveal', { path: j.compare }).catch(fail));
+        else textAct('stack', 'Compare', 'Writes a comparison copy of this render (source on top, result below, labelled RAW / NEURAL ENHANCED) without rendering again. Top / bottom or side by side follows Comparison Copy in the panel.', followUp(j, 'compare'));
+        if (j.kind === 'render') textAct('palette', 'Original colors', 'Brings the source\'s colours back into this render (Color Match) without rendering again; saved next to it as _colors, with a comparison copy. Uses Original Colors from the panel when it is on, otherwise 100 % with Fine precision.', followUp(j, 'colors'));
+      }
       if (['done', 'failed', 'cancelled'].includes(j.state)) act('retry', 'Render again', call('retry'));
       if (j.state !== 'rendering') act('trash', 'Remove from queue', call('remove'));
       const progress = h('div', { class: 'q-progress' });
@@ -1629,6 +1638,26 @@
     log.hidden = !S.showLog;
     list.hidden = S.showLog;
     if (S.showLog) { log.textContent = (q.log || []).join('\n') || 'No log entries yet.'; log.scrollTop = log.scrollHeight; }
+  }
+
+  function followUp(j, action) {
+    return () => {
+      const st = S.settings;
+      const cmOn = onSet().has('color_match') && Number(st.color_match_strength) > 0;
+      const layout = ['stack', 'side'].includes(st.vz_compare) ? st.vz_compare : 'stack';
+      const options = {
+        strength: cmOn ? Number(st.color_match_strength) : 100,
+        brightness: cmOn ? Number(st.color_match_brightness || 0) : 0,
+        scale: cmOn ? (st.color_match_scale || 'fine') : 'fine',
+        layout, with_compare: action === 'colors',
+        vz_compare_before: st.vz_compare_before, vz_compare_after: st.vz_compare_after, vz_compare_size: st.vz_compare_size,
+      };
+      api('/queue/' + action, { id: j.id, options }).then((r) => {
+        S.queue = r; renderQueue(); pollQueue(true);
+        toast(action === 'colors' ? 'Restoring the original colours. The result is saved next to the render as _colors.'
+          : 'Writing the comparison copy next to the render.');
+      }).catch(fail);
+    };
   }
 
   let queueTimer = null;

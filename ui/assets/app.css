@@ -553,3 +553,6 @@ select option { background: var(--card); }
 .easy-chain .link-btn { margin-left: auto; }
 .card-title .s.s-warn { color: var(--warn); font-family: var(--ui); font-size: 11.5px; }
 .card-title .tt { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+
+.q-text-btn { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.q-text-btn svg { width: 14px; height: 14px; }

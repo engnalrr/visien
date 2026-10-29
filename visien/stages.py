@@ -913,6 +913,19 @@ def estimate(settings: dict, info) -> dict:
         if max(width, height) > 32768:
             problems.append(f"{title} makes the picture larger than 32768 px.")
     width, height = int(round(width)), int(round(height))
+    active = active_stages(settings, kind)
+    if "neural_model" in active and "color_match" not in active and \
+            (float(get("nr_intensity", 1.0)) >= 1.5 or int(get("nr_passes", 1)) > 1):
+        warnings.append("Strong Neural Rendering (intensity above 1.5 or several passes) shifts colours: yellows "
+                        "turn orange or red, brand and product colours change. Turn on Original Colors "
+                        "(Color Match) to keep the source's colours.")
+    if min(width, height) > 2160 * 1.05 and min(info.width, info.height) <= 2160:
+        upscalers = [STAGE_BY_ID[x]["short"] for x in active if x in ("dlss_super_resolution", "super_resolution",
+                                                                      "vfx_vsr", "vfx_upscale", "scale_method")]
+        if len(upscalers) > 1:
+            warnings.append(f"The output is {width}×{height}, larger than 4K, because {' and '.join(upscalers)} "
+                            "each enlarge the picture. Keep one upscaler unless you need this size; it renders "
+                            "much slower.")
     if kind == "video":
         codec = str(get("codec", "H.264"))
         if hdr and not get("hdr_mode"):
@@ -1005,6 +1018,12 @@ EASY = [
      "tip": "Restores faces that drift or melt. GFPGAN 1.4 (commercial use allowed) unless the preset uses "
             "CodeFormer (non-commercial). Natural keeps identity and avoids flicker; Strong repairs badly "
             "deformed faces."},
+    {"id": "compare", "label": "Comparison Copy", "type": "segment",
+     "options": [{"value": "off", "label": "Off"}, {"value": "stack", "label": "Top / bottom"},
+                 {"value": "side", "label": "Side by side"}],
+     "tip": "Also writes <name>_compare.mp4 (.png for images) next to the result: the source and the result in one "
+            "frame with RAW / NEURAL ENHANCED labels. For a render that is already finished, use the comparison "
+            "button on its row in the queue."},
 ]
 
 

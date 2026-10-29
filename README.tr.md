@@ -1,4 +1,4 @@
-# Visien 1.3
+# Visien 1.4
 
 ![Visien](docs/assets/screenshot.png)
 
@@ -12,8 +12,8 @@ tarzı bir masaüstü arayüzünde birleştirir. Klibin birkaç saniyesinde ayar
 beğendiğin ayarı kuyruğa atıp bütün dosyaları işlersin.
 
 - Kendi penceresinde açılan masaüstü uygulaması (tarayıcı gerekmez)
-- **Easy mode:** presetin üstünde sekiz kısa ayar (Realism, AI Restore, Output Size, Sharpness, Film Grain,
-  Smooth Motion, Original Colors, Faces). **Advanced:** her kart ve her ayar.
+- **Easy mode:** presetin üstünde dokuz kısa ayar (Realism, AI Restore, Output Size, Sharpness, Film Grain,
+  Smooth Motion, Original Colors, Faces, Comparison Copy). **Advanced:** her kart ve her ayar.
 - **Her ayarın üstüne gelince** ne işe yaradığını anlatan kısa İngilizce açıklama
 - **AI modelleri** (Visien'in kendi AI ortamında, ekran kartında çalışır):
   - **SeedVR2** (ByteDance): yumuşak, sıkıştırılmış AI videosunda gerçek dokuyu geri getirir, 1080p'ye büyütür
@@ -106,7 +106,7 @@ Visien kendisi yazar.
 1. **Add** ile video ve görselleri ekle ya da pencereye sürükle-bırak. Dosyalar yerinde kalır, kopyalanmaz.
 2. Soldaki listeden bir dosya seç. Video ve görsel ardışık düzenleri ayrı ayarlanır, ikisi de aynı presette saklanır.
 3. Sağ panelin üstünden **Easy** ya da **Advanced**'i seç:
-   - **Easy:** üstte presetin açıklaması, altında sekiz ayar. Bir ayarı değiştirmek alttaki kartları da ayarlar;
+   - **Easy:** üstte presetin açıklaması, altında dokuz ayar. Bir ayarı değiştirmek alttaki kartları da ayarlar;
      **Runs** satırı hangi adımların hangi sırayla çalışacağını gösterir. Hiçbir şeyi kaybetmeden Advanced'e
      geçebilirsin.
    - **Advanced:** kartları aç/kapat, sırasını oklarla değiştir, ayarlarını gir. Varsayılandan farklı değerler
@@ -133,6 +133,12 @@ karşılaştırır, ama yalnızca **geniş alanlardaki rengi** düzeltir:
 - **Original Brightness:** genel parlaklık ve kontrastın ne kadarı döner. 0'da DLSS'in ışığı kalır.
 - **Precision:** Broad (geniş alanlar), Balanced, Fine (etiket, logo gibi küçük nesneler de).
 - Kare üretimi (RIFE, Frame Generation) ve büyütmeden sonra da çalışır; kaynak zaman olarak hizalanır.
+- Kaynaktaki bir renk sonucun parlaklığında var olamıyorsa kaynağın parlaklığı **yalnızca orada** geri gelir: DLSS
+  sarı bir logoyu çoğu zaman koyulaştırır, koyu ve doygun sarı da ekranda turuncuya ya da kahverengiye döner. Visien
+  her pikselde rengi gösterilebilir tutan en küçük parlaklık değişikliğini bulur; marka renkleri tonunu korur,
+  resmin geri kalanında DLSS'in ışığı kalır.
+- Renkleri en çok güçlü Neural Rendering kaydırır (intensity 1.5'in üstü ya da birden fazla geçiş); Color Match
+  kapalıyken kartların altındaki plan bunun için uyarır.
 
 ### Clean Shot Starts (plan başları)
 
@@ -148,7 +154,17 @@ karelerinden ters çevrilmiş kısa bir ısınma ekler, bütün kartları bu uza
 (görselde `.png`) yazılır: üstte kaynak, altta sonuç, köşelerinde **RAW** ve **NEURAL ENHANCED** etiketleri
 (ikisi de değiştirilebilir, örneğin VISIEN ya da müşterinin adı). Kaynak, sonucun boyutuna ve kare hızına
 getirilir, ses kaynaktan gelir. **Fit 1080p** her yarıyı en fazla 1920 piksel yapar (paylaşmak için);
-**Full size** sonucun çözünürlüğünü kullanır.
+**Full size** sonucun çözünürlüğünü kullanır. **Comparison Copy** Easy mode'da da var.
+
+### Biten bir render'ı düzeltmek
+
+Kuyrukta biten her render'da iki düğme var; hiçbir şeyi yeniden render etmek gerekmez:
+
+- **Original colors** biten dosyada kaynağına göre Color Match çalıştırır ve yanına `<ad>_colors.mp4` olarak,
+  karşılaştırma kopyasıyla birlikte kaydeder. Paneldeki Original Colors açıksa onun değerlerini, değilse %100 ve
+  Fine hassasiyeti kullanır. HDR render'larda çalışmaz.
+- **Compare** karşılaştırma kopyasını (`<ad>_compare.mp4`) yazar; sonra düğme **Comparison** olur ve dosyayı
+  klasöründe gösterir. Altlı üstlü ya da yan yana, paneldeki Comparison Copy ayarına göredir.
 
 ## AI modelleri
 
